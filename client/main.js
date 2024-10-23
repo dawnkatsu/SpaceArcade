@@ -9,7 +9,7 @@ window.onload=function() {
                 gravity: { y: 0 },
                 debug: false
             }},
-        scene: [MenuScene]
+        scene: [MenuScene, GameScene]
     }
 
     var game = new Phaser.Game(config)
