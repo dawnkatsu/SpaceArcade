@@ -9,6 +9,9 @@ export class MenuScene extends Phaser.Scene {
     preload() {
         this.load.image('space', "../assets/backgrounds/Space01.png")
         this.load.image('ship', "../assets/sprites/Spaceship01.png")
+        this.load.audio('music', "../assets/sounds/menu.wav")
+        this.load.image('sound-on', "../assets/sprites/Speaker-0.png")
+        this.load.image('sound-off', "../assets/sprites/Speaker-Crossed.png")        
     }
 
     create() {
@@ -22,6 +25,37 @@ export class MenuScene extends Phaser.Scene {
         let scaleY = this.cameras.main.height / image.height
         let scale = Math.max(scaleX, scaleY)
         image.setScale(scale).setScrollFactor(0)
+
+        // Add music
+        var music = this.sound.add('music', {
+            volume: .2
+        });
+        music.loop = true;
+        music.play();
+
+        // Add mute button
+        let sound = this.add.image(this.scale.width - 50, 50, 'sound-on');
+        sound.setScale(.4)
+
+        let mute = this.add.image(this.scale.width - 50, 50, 'sound-off');
+        mute.setScale(.4);
+        mute.setVisible(false);
+
+        // Add interactivity to mute button
+        sound.setInteractive();
+        mute.setInteractive();
+
+        sound.on('pointerdown', () => {
+            music.setMute(true)
+            sound.setVisible(false)
+            mute.setVisible(true)
+        })
+
+        mute.on('pointerdown', () => {
+            music.setMute(false);
+            sound.setVisible(true);
+            mute.setVisible(false);
+        })
 
         // Add title
         const title = this.add
@@ -57,13 +91,11 @@ export class MenuScene extends Phaser.Scene {
         // Player vs Player
         pvp.setInteractive();
         pvp.on('pointerover', () => {
-            console.log('pvp hover')
             hoverSprite.setVisible(true);
             hoverSprite.x = pvp.x - pvp.width/2 - 40;
             hoverSprite.y = pvp.y;
         })
         pvp.on('pointerout', () => {
-            console.log('pvp out')
             hoverSprite.setVisible(false);
         })
 
@@ -78,12 +110,10 @@ export class MenuScene extends Phaser.Scene {
             hoverSprite.setVisible(true);
             hoverSprite.x = pvc.x - pvc.width/2 - 40;
             hoverSprite.y = pvc.y;
-            console.log('pvc hover')
         })
 
         pvc.on('pointerout', () => {
             hoverSprite.setVisible(false);
-            console.log('pvc out')
         })
 
         pvc.on('pointerdown', () => {
