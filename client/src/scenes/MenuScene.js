@@ -1,5 +1,5 @@
-import Phaser from '../lib/phaser.js'
-import * as WebFontLoader from '../lib/webfontloader.js'
+import Phaser from '../../lib/phaser.js'
+import * as WebFontLoader from '../../lib/webfontloader.js'
 
 export class MenuScene extends Phaser.Scene {
     constructor() {

@@ -1,4 +1,4 @@
-import Phaser from '../lib/phaser.js'
+import Phaser from '../../lib/phaser.js'
 
 export class GameScene extends Phaser.Scene {
     constructor() {
