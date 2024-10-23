@@ -1,16 +1,19 @@
-window.onload=function() {
-    var config = {
-        width: 800,
-        height: 600,
-        background: 0x000000,
-        physics: {
-            default: 'arcade',
-            arcade: {
-                gravity: { y: 0 },
-                debug: false
-            }},
-        scene: [MenuScene, GameScene]
-    }
+import Phaser from './lib/phaser.js'
+import { MenuScene } from './scenes/MenuScene.js'
+import { GameScene } from './scenes/GameScene.js'
 
-    var game = new Phaser.Game(config)
+const config = {
+    width: 800,
+    height: 600,
+    roundPixels: true,
+    pixelArt: true,
+    parent: 'game-container',
+    autoCenter: Phaser.Scale.CENTER_BOTH,
+    mode: Phaser.Scale.HEIGHT_CONTROLS_WIDTH,
+    scene: [
+        MenuScene,
+        GameScene,
+    ]
+
 }
+const game = new Phaser.Game(config)

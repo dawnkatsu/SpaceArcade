@@ -1,13 +1,27 @@
 <!DOCTYPE html>
 <html>
     <head>
+        <meta name="viewport" content="width=device-width", initial-scale="1.0"/>
+        <title>2D Space Arcade</title>
+
+        <style>
+            html, body, .container {
+                margin: 0px;
+                height: 100vh;
+                width: 100vw;
+                overflow: hidden;
+                background: #d7d7d7;
+            }
+        </style>
+        
+        <!-- Load WebFontLoader Library -->
+        <script src="https://cdn.jsdelivr.net/npm/webfontloader@1.6.28/webfontloader.min.js"></script>
         <!-- Load Phaser files -->
-        <script type="text/javascript" src="phaser.min.js"></script>
-        <script type="text/javascript" src="scenes/MenuScene.js"></script>
-        <script type="text/javascript" src="scenes/GameScene.js"></script>
-        <script type="text/javascript" src="main.js"></script>
+        <script src="//cdn.jsdelivr.net/npm/phaser@3.86.0/dist/phaser.min.js"></script>
     </head>
 
     <body>
+        <div class="container" id="game-container"></div>
+        <script src="main.js" type="module"></script>
     </body>
 </html>

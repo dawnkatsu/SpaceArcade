@@ -1,4 +1,6 @@
-class GameScene extends Phaser.Scene {
+import Phaser from '../lib/phaser.js'
+
+export class GameScene extends Phaser.Scene {
     constructor() {
         super('playGame')
     }
@@ -62,7 +64,8 @@ class GameScene extends Phaser.Scene {
         this.physics.add.collider(player, meteors, hitByMeteor, null, this);
 
         // this.physics.add.collider(laser, enemy, shoot)
-    }
+        
+        }
 
     update() {
         if (gameOver)
