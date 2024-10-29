@@ -21,6 +21,8 @@ export class GameScene extends Phaser.Scene {
         const asteroids_y_vel_min = -5;
         const asteroids_y_vel_max = 5;
         const asteroids_x_coverage = 200;
+        const asteroids_scale_min = 1;
+        const asteroids_scale_max = 1.3;
         const num_asteroids = 50;
         const asteroids_frame_rate = 30;
 
@@ -77,6 +79,7 @@ export class GameScene extends Phaser.Scene {
             var rand_y = Phaser.Math.Between(0, 600);
 
             child.setPosition(rand_x,rand_y);
+            child.setScale(Phaser.Math.Between(asteroids_scale_min,asteroids_scale_max))
             child.setVelocity(Phaser.Math.Between(asteroids_x_vel_min, asteroids_x_vel_max), Phaser.Math.Between(asteroids_y_vel_min, asteroids_y_vel_max));
             child.allowGravity = false;
         });
