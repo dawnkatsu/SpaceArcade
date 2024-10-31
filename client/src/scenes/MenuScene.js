@@ -7,6 +7,7 @@ export class MenuScene extends Phaser.Scene {
     }
 
     preload() {
+        // Load assets
         this.load.image('space', "../assets/backgrounds/Space01.png")
         this.load.image('ship', "../assets/sprites/Spaceship01.png")
         this.load.audio('music', "../assets/sounds/menu.wav")
@@ -69,7 +70,8 @@ export class MenuScene extends Phaser.Scene {
         const pvc = this.add
         .text(w,400, "Player vs Computer", {fontSize: 15}).setOrigin(.5)
 
-        // Load Google font; wait for assets to load and set font
+        // Load Google font using WebFontLoader; 
+        // Wait for assets to load and set font/color
         WebFontLoader.default.load({
             google: {
                 families: ['Press Start 2P']
@@ -81,7 +83,7 @@ export class MenuScene extends Phaser.Scene {
             }
         })
 
-        // Add sprite to indicate menu selection
+        // Add sprite to indicate menu selection on hover
         let hoverSprite = this.add.image(100,100,'ship')
         hoverSprite.setScale(1);
         hoverSprite.setVisible(false);

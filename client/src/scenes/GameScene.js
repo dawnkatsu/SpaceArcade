@@ -10,6 +10,14 @@ const laserSpeed = 200;
 const laserLifespan = 5;
 var laserDelay = laserInterval;
 
+// Meteor Configuration
+const meteorInitialCount = 25;
+const meteorSpeed = 50;
+const meteorXmin = 150;
+const meteorXmax = 650;
+const meteorYmin = 100;
+const meteorYmax = 500;
+
 export class GameScene extends Phaser.Scene {
     constructor() {
         super('playGame');
@@ -18,7 +26,7 @@ export class GameScene extends Phaser.Scene {
 
     preload() {
         this.load.image('laser', '../assets/sprites/laser_rotated.png');
-        this.load.image('meteor', '../assets/sprites/Asteroids.png');
+        this.load.spritesheet('meteor', '../assets/sprites/Asteroids.png', {frameWidth: 30, frameHeight: 30});
         this.load.spritesheet('spaceship', '../assets/sprites/Spaceship2_rotated.png', { frameWidth: 32, frameHeight: 48 });
         this.load.spritesheet('spaceship2', '../assets/sprites/Spaceship01-rotated.png', {frameWidth: 32, frameHeight: 48});
 
@@ -36,7 +44,7 @@ export class GameScene extends Phaser.Scene {
         image.setScale(scale).setScrollFactor(0)
 
         
-        // // Add player 1 (Left)
+        // Add player 1 (Left)
         this.player = this.physics.add.sprite(25, 300, 'spaceship');
         this.player.setCollideWorldBounds(true);
 
@@ -47,12 +55,13 @@ export class GameScene extends Phaser.Scene {
         // //  Animations
 
 
-        // // Lasers
+        // Lasers
         // Create laser group
         this.laserGroup = this.physics.add.group({
             name: 'lasers-${Phaser.Math.RND.uuid()}',
             enable: false,
         });
+
         // Initialize given number of laser objects
         this.laserGroup.createMultiple({
             key: 'laser',
@@ -74,14 +83,16 @@ export class GameScene extends Phaser.Scene {
         // // Generate meteors
         let meteors = this.physics.add.group({
             key: 'meteor',
-            repeat: 10
+            repeat: meteorInitialCount
         });
 
         meteors.children.iterate(function (child,player) {
-            var rand_x = (player.x < 400) ? Phaser.Math.Between(400, 800) : Phaser.Math.Between(0, 400);
-            var rand_y = (player.y < 300) ? Phaser.Math.Between(300, 600) : Phaser.Math.Between(0, 300);
+            // var rand_x = (player.x < 400) ? Phaser.Math.Between(400, 800) : Phaser.Math.Between(0, 400);
+            // var rand_y = (player.y < 300) ? Phaser.Math.Between(300, 600) : Phaser.Math.Between(0, 300);
+            var rand_x = Phaser.Math.Between(meteorXmin, meteorXmax);
+            var rand_y = Phaser.Math.Between(meteorYmin, meteorYmax);
             child.setPosition(rand_x,rand_y);
-            child.setVelocity(Phaser.Math.Between(-10, 10), Phaser.Math.Between(-8, 8));
+            child.setVelocity(Phaser.Math.Between(-meteorSpeed, meteorSpeed), Phaser.Math.Between(-meteorSpeed, meteorSpeed));
             child.allowGravity = false;
 
         });
