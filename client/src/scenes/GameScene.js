@@ -4,10 +4,10 @@ import Phaser from '../../lib/phaser.js'
 const shipSpeed = 150;
 
 // Laser Configuration
-const laserMax = 10;
+const laserMax = 20;
 const laserInterval = 300;
 const laserSpeed = 200;
-const laserLifespan = 3;
+const laserLifespan = 5;
 var laserDelay = laserInterval;
 
 export class GameScene extends Phaser.Scene {
