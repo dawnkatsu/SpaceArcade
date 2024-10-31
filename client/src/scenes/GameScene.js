@@ -5,8 +5,8 @@ const shipSpeed = 150;
 
 // Laser Configuration
 const laserMax = 10;
-const laserInterval = 500;
-const laserSpeed = 300;
+const laserInterval = 300;
+const laserSpeed = 200;
 const laserLifespan = 3;
 var laserDelay = laserInterval;
 
@@ -48,16 +48,28 @@ export class GameScene extends Phaser.Scene {
 
 
         // // Lasers
+        // Create laser group
         this.laserGroup = this.physics.add.group({
             name: 'lasers-${Phaser.Math.RND.uuid()}',
             enable: false,
         });
+        // Initialize given number of laser objects
         this.laserGroup.createMultiple({
             key: 'laser',
             quantity: laserMax,
             active: false,
             visible: false,
         });
+
+        // Monitor laser states in order to recycle unused laser objects
+        this.laserGroup.scene.physics.world.on(Phaser.Physics.Arcade.Events.WORLD_STEP, this.worldStep, this);
+        this.laserGroup.once(
+            Phaser.GameObjects.Events.DESTROY,
+            () => {
+                this.laserGroup.scene.physics.world.off(Phaser.Physics.Arcade.Events.WORLD_STEP, this.update, this);
+            }, 
+            this
+        );
 
         // // Generate meteors
         let meteors = this.physics.add.group({
@@ -93,6 +105,7 @@ export class GameScene extends Phaser.Scene {
                 return;
             }
 
+        // Check for laser firing; if delay has not been fulfilled, return to prevent rapid fire
         laserDelay -= dt;
         if (this.cursors.space.isDown)
         {
@@ -103,6 +116,7 @@ export class GameScene extends Phaser.Scene {
             this.fireLaser()
         }
 
+        // Check for cursor keys/ship movement
         if (this.cursors.up.isDown)
         {
             this.player.setVelocityY(-shipSpeed)    
@@ -119,21 +133,6 @@ export class GameScene extends Phaser.Scene {
         }        
     }
 
-    // shootLaser() {
-    //     lasers.setVelocityX(100)
-    // }
-
-    // laserHitsTarget(player, target) {
-    //     //show explosion
-    //     //target.disableBody(true,true)
-
-    //     //If target == meteor:
-    //     // score += 10
-
-    //     //else:
-    //     // score +=50
-    // }
-
     hitByMeteor() {
         this.physics.pause();
 
@@ -142,17 +141,39 @@ export class GameScene extends Phaser.Scene {
         this.gameOver = true;
     }
 
+    // Helper function to fire lasers
     fireLaser() {
+        // Get first inactive laser object from laser group
         const laser = this.laserGroup.getFirstDead();
+
+        // If there are no inactive laser objects (i.e. out of bullets), then return
         if (laser === undefined || laser === null) {
             return;
         }
 
+        // Initialize laser position in reference to player ship
         const x = this.player.x + 20;
         const y = this.player.y;
         laser.enableBody(true, x, y, true, true);
-        laser.body.velocity.x += 300;
+        laser.body.velocity.x += laserSpeed;
+
+        // Lifespan of laser object before being recycled
+        laser.setState(laserLifespan)
 
         laserDelay = laserInterval;
+    }
+
+    // Helper function utilizing WORLD_STEP to destroy idle laser objects
+    worldStep(delta) {
+        this.laserGroup.getChildren().forEach((laser) => {
+            if (!laser.active) {
+                return;
+            }
+
+            laser.state -= delta;
+            if (laser.state <= 0) {
+                laser.disableBody(true, true);
+            }
+        });
     }
 }
