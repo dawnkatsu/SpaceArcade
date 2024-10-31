@@ -5,7 +5,7 @@ const shipSpeed = 150;
 
 // Laser Configuration
 const laserMax = 10;
-const laserInterval = 300;
+const laserInterval = 500;
 const laserSpeed = 300;
 const laserLifespan = 3;
 var laserDelay = laserInterval;
