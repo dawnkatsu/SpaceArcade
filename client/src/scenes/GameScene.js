@@ -15,12 +15,15 @@ const laserLifespan = 5;
 var laserDelay = laserInterval;
 
 // Meteor Configuration
-const meteorInitialCount = 25;
-const meteorSpeed = 50;
-const meteorXmin = 150;
-const meteorXmax = 650;
-const meteorYmin = 100;
-const meteorYmax = 500;
+const asteroids_x_vel_min = -5;
+const asteroids_x_vel_max = 5;
+const asteroids_y_vel_min = -5;
+const asteroids_y_vel_max = 5;
+const asteroids_x_coverage = 200;
+const asteroids_scale_min = 1;
+const asteroids_scale_max = 1.3;
+const num_asteroids = 50;
+const asteroids_frame_rate = 30;
 
 export class GameScene extends Phaser.Scene {
     constructor() {
@@ -30,13 +33,15 @@ export class GameScene extends Phaser.Scene {
 
     preload() {
         this.load.image('laser', '../assets/sprites/laser_rotated.png');
-        this.load.spritesheet('meteor', '../assets/sprites/Asteroids.png', {frameWidth: 30, frameHeight: 30});
+        //this.load.spritesheet('meteor', '../assets/sprites/Asteroids.png', {frameWidth: 30, frameHeight: 30});
+        this.load.spritesheet('meteor', '../assets/sprites/Asteroid 01 - Explode.png', {frameWidth: 32, frameHeight: 32,});
         this.load.spritesheet('spaceship', '../assets/sprites/Spaceship2_rotated.png', { frameWidth: 32, frameHeight: 48 });
         this.load.spritesheet('spaceship2', '../assets/sprites/Spaceship01-rotated.png', {frameWidth: 32, frameHeight: 48});
-
+        let meteor = this.load.spritesheet('asteroid', '../assets/sprites/Asteroid 01 - Explode.png', { frameWidth: 32, frameHeight: 32, frame: 0 });
     }
 
     create() {
+        // Init
         this.gameOver = false;
 
         //  A simple background for our game
@@ -57,6 +62,40 @@ export class GameScene extends Phaser.Scene {
         this.player2.setCollideWorldBounds(true);
 
         // //  Animations
+        this.anims.create(
+            {
+                key: "degredation",
+                frames: this.anims.generateFrameNumbers('asteroid', { start: 0, end: 1 }),
+                frameRate: asteroids_frame_rate
+            }
+        );
+
+        this.anims.create(
+            {
+                key: "explosion",
+                frames: this.anims.generateFrameNumbers('asteroid', { start: 2, end: 6 }),
+                frameRate: asteroids_frame_rate,
+                repeat: 0,
+                hideOnComplete: true
+            }
+        );
+
+        // Generate Meteors
+        this.meteors = this.physics.add.group({
+            key: 'asteroid',
+            repeat: num_asteroids
+        });
+
+        this.meteors.children.iterate(function (child) {
+            var rand_x = Phaser.Math.Between(400 - asteroids_x_coverage, 400 + asteroids_x_coverage);
+            var rand_y = Phaser.Math.Between(0, 600);
+
+            child.setOrigin(.5);
+            child.setPosition(rand_x,rand_y);
+            child.setScale(Phaser.Math.Between(asteroids_scale_min,asteroids_scale_max))
+            child.setVelocity(Phaser.Math.Between(asteroids_x_vel_min, asteroids_x_vel_max), Phaser.Math.Between(asteroids_y_vel_min, asteroids_y_vel_max));
+            child.allowGravity = false;
+        });
 
 
         // Lasers
@@ -84,22 +123,24 @@ export class GameScene extends Phaser.Scene {
             this
         );
 
-        // // Generate meteors
-        let meteors = this.physics.add.group({
-            key: 'meteor',
-            repeat: meteorInitialCount
-        });
+        // // // Generate meteors
+        // let meteors = this.physics.add.group({
+        //     key: 'meteor',
+        //     repeat: meteorInitialCount
+        // });
 
-        meteors.children.iterate(function (child,player) {
-            // var rand_x = (player.x < 400) ? Phaser.Math.Between(400, 800) : Phaser.Math.Between(0, 400);
-            // var rand_y = (player.y < 300) ? Phaser.Math.Between(300, 600) : Phaser.Math.Between(0, 300);
-            var rand_x = Phaser.Math.Between(meteorXmin, meteorXmax);
-            var rand_y = Phaser.Math.Between(meteorYmin, meteorYmax);
-            child.setPosition(rand_x,rand_y);
-            child.setVelocity(Phaser.Math.Between(-meteorSpeed, meteorSpeed), Phaser.Math.Between(-meteorSpeed, meteorSpeed));
-            child.allowGravity = false;
+        // meteors.children.iterate(function (child,player) {
+        //     // var rand_x = (player.x < 400) ? Phaser.Math.Between(400, 800) : Phaser.Math.Between(0, 400);
+        //     // var rand_y = (player.y < 300) ? Phaser.Math.Between(300, 600) : Phaser.Math.Between(0, 300);
+        //     var rand_x = Phaser.Math.Between(meteorXmin, meteorXmax);
+        //     var rand_y = Phaser.Math.Between(meteorYmin, meteorYmax);
+        //     child.setPosition(rand_x,rand_y);
+        //     child.setVelocity(Phaser.Math.Between(-meteorSpeed, meteorSpeed), Phaser.Math.Between(-meteorSpeed, meteorSpeed));
+        //     child.allowGravity = false;
 
-        });
+        // });
+
+
         // //  Input Events
         this.cursors = this.input.keyboard.createCursorKeys();
 
@@ -123,7 +164,7 @@ export class GameScene extends Phaser.Scene {
         // this.physics.add.collider(laser, enemy, shoot)
 
         // Shoot meteor collision/physics
-        this.physics.add.collider(this.laserGroup, meteors, this.shotMeteor, null, this);
+        this.physics.add.collider(this.laserGroup, this.meteors, this.shotMeteor, null, this);
 
         
         }
@@ -159,18 +200,31 @@ export class GameScene extends Phaser.Scene {
         {
             this.player.setVelocityX(0);
             this.player.setVelocityY(0);
-        }        
+        }
+                
     }
 
-    hitByMeteor() {
+    hitByMeteor(player, meteor) {
+        // Ship and meteor explodes
+        meteor.play("explosion")
+        player.play("explosion")
         this.physics.pause();
-
         this.player.setTint(0xff0000);
-
         this.gameOver = true;
     }
 
-    shotMeteor() {
+    destroyMeteor(player,meteor) {
+        console.log(meteor.anims.currentFrame)
+        if (meteor.anims.currentFrame != null) {
+            meteor.play("explosion")
+        }
+        else {
+            meteor.play("degredation")
+        }
+    }
+
+    shotMeteor(player, meteor) {
+        this.destroyMeteor(player, meteor);
         scoreP1 += 100;
         this.scoreP1Text.setText(`SCORE: ${scoreP1}`)
     }
