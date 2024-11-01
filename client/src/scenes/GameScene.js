@@ -22,7 +22,7 @@ const asteroids_y_vel_max = 5;
 const asteroids_x_coverage = 200;
 const asteroids_scale_min = 1;
 const asteroids_scale_max = 1.3;
-const num_asteroids = 50;
+const num_asteroids = 10;
 const asteroids_frame_rate = 30;
 
 export class GameScene extends Phaser.Scene {
@@ -37,7 +37,7 @@ export class GameScene extends Phaser.Scene {
         this.load.spritesheet('meteor', '../assets/sprites/Asteroid 01 - Explode.png', {frameWidth: 32, frameHeight: 32,});
         this.load.spritesheet('spaceship', '../assets/sprites/Spaceship2_rotated.png', { frameWidth: 32, frameHeight: 48 });
         this.load.spritesheet('spaceship2', '../assets/sprites/Spaceship01-rotated.png', {frameWidth: 32, frameHeight: 48});
-        let meteor = this.load.spritesheet('asteroid', '../assets/sprites/Asteroid 01 - Explode.png', { frameWidth: 32, frameHeight: 32, frame: 0 });
+        this.load.spritesheet('asteroid', '../assets/sprites/Asteroid 01 - Explode.png', { frameWidth: 90, frameHeight: 90, frame: 0 });
     }
 
     create() {
