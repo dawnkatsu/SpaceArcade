@@ -1,7 +1,11 @@
 import Phaser from '../../lib/phaser.js'
+import * as WebFontLoader from '../../lib/webfontloader.js'
+
 
 // Player Configuration
 const shipSpeed = 150;
+var scoreP1 = 0;
+var scoreP2 = 0;
 
 // Laser Configuration
 const laserMax = 20;
@@ -100,13 +104,27 @@ export class GameScene extends Phaser.Scene {
         this.cursors = this.input.keyboard.createCursorKeys();
 
         // //  The score
-        this.scoreText = this.add.text(16, 16, 'score: 0', { fontSize: '32px', fill: '#4488aa' });
+        this.scoreP1Text = this.add.text(5, 20, `SCORE: ${scoreP1}`, { fontSize: '12px'});
+        this.scoreP2Text = this.add.text(this.scale.width - 100, 20, `SCORE: ${scoreP2}`, { fontSize: '12px'});
+        WebFontLoader.default.load({
+            google: {
+                families: ['Press Start 2P']
+            },
+            active: () => {
+                this.scoreP1Text.setFontFamily('"Press Start 2P"').setColor('#ffffff');
+                this.scoreP2Text.setFontFamily('"Press Start 2P"').setColor('#ffffff');
+            }
+        })
 
 
         // // Hit by meteor. Game over
         this.physics.add.collider(this.player, this.meteors, this.hitByMeteor, null, this);
 
         // this.physics.add.collider(laser, enemy, shoot)
+
+        // Shoot meteor collision/physics
+        this.physics.add.collider(this.laserGroup, meteors, this.shotMeteor, null, this);
+
         
         }
 
@@ -150,6 +168,11 @@ export class GameScene extends Phaser.Scene {
         this.player.setTint(0xff0000);
 
         this.gameOver = true;
+    }
+
+    shotMeteor() {
+        scoreP1 += 100;
+        this.scoreP1Text.setText(`SCORE: ${scoreP1}`)
     }
 
     // Helper function to fire lasers
