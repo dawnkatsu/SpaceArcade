@@ -61,12 +61,6 @@ export class GameScene extends Phaser.Scene {
             }
         );
 
-        // // Lasers
-        // lasers = this.physics.add.group({
-        //     key: 'laser',
-        //     setXY: {x: player.x, y: player.y},
-        // });
-
 
         // Generate meteors
         this.meteors = this.physics.add.group({
@@ -95,11 +89,15 @@ export class GameScene extends Phaser.Scene {
         this.physics.add.collider(this.player, this.meteors, this.hitByMeteor, null, this);
 
         // Hit meteor with laser
-        // this.physics.add.collider(laser, enemy, shoot)
         
         }
 
     update() {
+        this.moveShip()
+    }
+
+
+    moveShip() {
         if (this.gameOver)
             {
                 return;
@@ -135,22 +133,6 @@ export class GameScene extends Phaser.Scene {
             this.player.setVelocityY(0);
         }  
     }
-
-
-    // shootLaser() {
-    //     lasers.setVelocityX(100)
-    // }
-
-    // laserHitsTarget(player, target) {
-    //     //show explosion
-    //     //target.disableBody(true,true)
-
-    //     //If target == meteor:
-    //     // score += 10
-
-    //     //else:
-    //     // score +=50
-    // }
 
     hitByMeteor(player,meteor) {
         
