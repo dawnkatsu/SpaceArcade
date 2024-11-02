@@ -231,6 +231,7 @@ export class GameScene extends Phaser.Scene {
         }
         else {
             meteor.play("degredation")
+            meteor.setOffset(35.3,32.55)
         }
     }
 
