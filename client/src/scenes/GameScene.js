@@ -21,9 +21,10 @@ const asteroids_y_vel_min = -5;
 const asteroids_y_vel_max = 5;
 const asteroids_x_coverage = 200;
 const asteroids_scale_min = 1;
-const asteroids_scale_max = 1.3;
+const asteroids_scale_max = 1.5;
 const num_asteroids = 10;
 const asteroids_frame_rate = 30;
+const asteroids_mass = 10000;
 
 export class GameScene extends Phaser.Scene {
     constructor() {
@@ -33,8 +34,6 @@ export class GameScene extends Phaser.Scene {
 
     preload() {
         this.load.image('laser', '../assets/sprites/laser_rotated.png');
-        //this.load.spritesheet('meteor', '../assets/sprites/Asteroids.png', {frameWidth: 30, frameHeight: 30});
-        this.load.spritesheet('meteor', '../assets/sprites/Asteroid 01 - Explode.png', {frameWidth: 32, frameHeight: 32,});
         this.load.spritesheet('spaceship', '../assets/sprites/Spaceship2_rotated.png', { frameWidth: 32, frameHeight: 48 });
         this.load.spritesheet('spaceship2', '../assets/sprites/Spaceship01-rotated.png', {frameWidth: 32, frameHeight: 48});
         this.load.spritesheet('asteroid', '../assets/sprites/Asteroid 01 - Explode.png', { frameWidth: 90, frameHeight: 90, frame: 0 });
@@ -89,12 +88,17 @@ export class GameScene extends Phaser.Scene {
         this.meteors.children.iterate(function (child) {
             var rand_x = Phaser.Math.Between(400 - asteroids_x_coverage, 400 + asteroids_x_coverage);
             var rand_y = Phaser.Math.Between(0, 600);
-
-            child.setOrigin(.5);
+            var rand_vx = Phaser.Math.FloatBetween(asteroids_x_vel_min, asteroids_x_vel_max)
+            var rand_vy = Phaser.Math.FloatBetween(asteroids_y_vel_min, asteroids_y_vel_max)
+            // child.setOrigin(0.5,0.5)
             child.setPosition(rand_x,rand_y);
-            child.setScale(Phaser.Math.Between(asteroids_scale_min,asteroids_scale_max))
-            child.setVelocity(Phaser.Math.Between(asteroids_x_vel_min, asteroids_x_vel_max), Phaser.Math.Between(asteroids_y_vel_min, asteroids_y_vel_max));
+            child.setScale(Phaser.Math.FloatBetween(asteroids_scale_min,asteroids_scale_max))
+            child.setVelocity(rand_vx, rand_vy);
             child.allowGravity = false;
+            child.setSize(34.5,31.5)
+            child.setOffset(30,32.55)
+            child.init_x_vel = rand_vx
+
         });
 
 
@@ -213,20 +217,28 @@ export class GameScene extends Phaser.Scene {
         this.gameOver = true;
     }
 
-    destroyMeteor(player,meteor) {
-        console.log(meteor.anims.currentFrame)
+    destroyMeteor(laser,meteor) {
+
+        let calculated_final_v = (laserSpeed+meteor.init_x_vel*asteroids_mass)/asteroids_mass
+        meteor.body.setVelocityX(calculated_final_v)
+        meteor.init_x_vel = calculated_final_v
+        laser.disableBody(true, true);
         if (meteor.anims.currentFrame != null) {
             meteor.play("explosion")
+            meteor.once('animationcomplete', () => {
+                meteor.destroy(true)
+            })
         }
         else {
             meteor.play("degredation")
         }
     }
 
-    shotMeteor(player, meteor) {
-        this.destroyMeteor(player, meteor);
+    shotMeteor(laser, meteor) {
+        this.destroyMeteor(laser, meteor);
         scoreP1 += 100;
         this.scoreP1Text.setText(`SCORE: ${scoreP1}`)
+
     }
 
     // Helper function to fire lasers
@@ -245,10 +257,12 @@ export class GameScene extends Phaser.Scene {
         laser.enableBody(true, x, y, true, true);
         laser.body.velocity.x += laserSpeed;
 
+
         // Lifespan of laser object before being recycled
         laser.setState(laserLifespan)
 
         laserDelay = laserInterval;
+        
     }
 
     // Helper function utilizing WORLD_STEP to destroy idle laser objects
@@ -263,5 +277,9 @@ export class GameScene extends Phaser.Scene {
                 laser.disableBody(true, true);
             }
         });
+    }
+
+    adjustVelocity() {
+        
     }
 }
