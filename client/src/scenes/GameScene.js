@@ -45,6 +45,9 @@ export class GameScene extends Phaser.Scene {
         // Init
         this.gameOver = false;
 
+        // Set world boundary to allow score
+        this.physics.world.setBounds(0,50);
+
         //  A simple background for our game
         this.add.image(400, 300, 'space');
         let image = this.add.image(this.cameras.main.width / 2, this.cameras.main.height / 2, 'space')
@@ -177,7 +180,7 @@ export class GameScene extends Phaser.Scene {
     update(ts, dt) {
         if (this.gameOver)
             {
-                return;
+                this.scene.start('bootGame');
             }
 
         // Check for laser firing; if delay has not been fulfilled, return to prevent rapid fire
