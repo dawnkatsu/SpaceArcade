@@ -37,6 +37,8 @@ export class GameScene extends Phaser.Scene {
         this.load.spritesheet('spaceship', '../assets/sprites/Spaceship2_rotated.png', { frameWidth: 32, frameHeight: 48 });
         this.load.spritesheet('spaceship2', '../assets/sprites/Spaceship01-rotated.png', {frameWidth: 32, frameHeight: 48});
         this.load.spritesheet('asteroid', '../assets/sprites/Asteroid 01 - Explode.png', { frameWidth: 90, frameHeight: 90, frame: 0 });
+        this.load.audio('laserShot', '../assets/sounds/laser.wav');
+        this.load.audio('asteroidExplosion', '../assets/sounds/explosion.wav');
     }
 
     create() {
@@ -90,7 +92,6 @@ export class GameScene extends Phaser.Scene {
             var rand_y = Phaser.Math.Between(0, 600);
             var rand_vx = Phaser.Math.FloatBetween(asteroids_x_vel_min, asteroids_x_vel_max)
             var rand_vy = Phaser.Math.FloatBetween(asteroids_y_vel_min, asteroids_y_vel_max)
-            // child.setOrigin(0.5,0.5)
             child.setPosition(rand_x,rand_y);
             child.setScale(Phaser.Math.FloatBetween(asteroids_scale_min,asteroids_scale_max))
             child.setVelocity(rand_vx, rand_vy);
@@ -105,7 +106,7 @@ export class GameScene extends Phaser.Scene {
         // Lasers
         // Create laser group
         this.laserGroup = this.physics.add.group({
-            name: 'lasers-${Phaser.Math.RND.uuid()}',
+            name: `lasers-${Phaser.Math.RND.uuid()}`,
             enable: false,
         });
 
@@ -212,6 +213,7 @@ export class GameScene extends Phaser.Scene {
         // Ship and meteor explodes
         meteor.play("explosion")
         player.play("explosion")
+
         this.physics.pause();
         this.player.setTint(0xff0000);
         this.gameOver = true;
@@ -225,11 +227,20 @@ export class GameScene extends Phaser.Scene {
         laser.disableBody(true, true);
         if (meteor.anims.currentFrame != null) {
             meteor.play("explosion")
+            this.sound.play('asteroidExplosion', {
+                volume: .4,
+                detune: -200
+            })
             meteor.once('animationcomplete', () => {
                 meteor.destroy(true)
             })
         }
         else {
+            this.sound.play('asteroidExplosion', {
+                volume: .2,
+                rate: 15,
+                detune: -3500
+            })
             meteor.play("degredation")
             meteor.setOffset(35.3,32.55)
         }
@@ -251,6 +262,14 @@ export class GameScene extends Phaser.Scene {
         if (laser === undefined || laser === null) {
             return;
         }
+
+        // Play laser sound effect
+        this.sound.play('laserShot', {
+            volume: .1,
+            rate: 2,
+            detune: -1000
+        });
+
 
         // Initialize laser position in reference to player ship
         const x = this.player.x + 20;
