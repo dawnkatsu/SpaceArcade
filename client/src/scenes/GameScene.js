@@ -227,6 +227,24 @@ export class GameScene extends Phaser.Scene {
         }
     
     moveP1() {
+        // Check for cursor keys/ship movement
+        if (this.cursors.up.isDown)
+            {
+                this.player.setVelocityY(-shipSpeed)    
+            }
+
+        else if (this.cursors.down.isDown)
+            {
+                this.player.setVelocityY(shipSpeed);
+        
+            } 
+
+        else
+            {
+                this.player.setVelocityX(0);
+                this.player.setVelocityY(0);
+            }   
+
         if (this.cursors.space.isDown)
             {
                 if (laserDelayP1 > 0) {
@@ -235,26 +253,25 @@ export class GameScene extends Phaser.Scene {
     
                 this.fireLaser(this.laserGroupP1, this.player.x, this.player.y)
             }
-    
-            
-        // Check for cursor keys/ship movement
-        if (this.cursors.up.isDown)
-            {
-                this.player.setVelocityY(-shipSpeed)    
-            }
-        else if (this.cursors.down.isDown)
-            {
-                this.player.setVelocityY(shipSpeed);
-        
-            }    
-        else if (this.cursors.up.isUp && this.cursors.down.isUp)
-            {
-                this.player.setVelocityX(0);
-                this.player.setVelocityY(0);
-            }   
     }
 
     moveP2() {
+        if (keyW.isDown) 
+        {
+            this.player2.setVelocityY(-shipSpeed)
+        }
+
+        else if (keyS.isDown)
+        {
+            this.player2.setVelocityY(shipSpeed);
+        }
+
+        else
+        {
+            this.player2.setVelocityX(0);
+            this.player2.setVelocityY(0);
+        }
+
         if (keyJ.isDown)
             {
                 if (laserDelayP2 > 0) {
@@ -263,20 +280,6 @@ export class GameScene extends Phaser.Scene {
     
                 this.fireLaser(this.laserGroupP2, this.player2.x, this.player2.y)
             }
-
-        if (keyW.isDown) 
-        {
-            this.player2.setVelocityY(-shipSpeed)
-        }
-        else if (keyS.isDown)
-        {
-            this.player2.setVelocityY(shipSpeed);
-        }
-        else
-        {
-            this.player2.setVelocityX(0);
-            this.player2.setVelocityY(0);
-        }
     }
 
     aiPlayer() {
