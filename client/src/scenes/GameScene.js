@@ -21,7 +21,8 @@ const laserMax = 30;
 const laserInterval = 450;
 const laserSpeed = 200;
 const laserLifespan = 5;
-var laserDelay = laserInterval;
+var laserDelayP1 = laserInterval;
+var laserDelayP2 = laserInterval;
 
 // Meteor Configuration
 const asteroids_x_vel_min = -25;
@@ -63,17 +64,17 @@ class Laser extends Phaser.Physics.Arcade.Sprite {
         if (this.player === 'P2')
         {
             this.body.velocity.x -= laserSpeed;
+            laserDelayP2 = laserInterval;
         }
         else 
         {
             this.body.velocity.x += laserSpeed;
+            laserDelayP1 = laserInterval;
         }
 
 
         // Lifespan of laser object before being recycled
         this.setState(laserLifespan)
-
-        laserDelay = laserInterval;
     }
 
     preUpdate(time, delta) {
@@ -228,7 +229,7 @@ export class GameScene extends Phaser.Scene {
     moveP1() {
         if (this.cursors.space.isDown)
             {
-                if (laserDelay > 0) {
+                if (laserDelayP1 > 0) {
                     return
                 }
     
@@ -236,27 +237,27 @@ export class GameScene extends Phaser.Scene {
             }
     
             
-            // Check for cursor keys/ship movement
-            if (this.cursors.up.isDown)
-                {
-                    this.player.setVelocityY(-shipSpeed)    
-                }
-            else if (this.cursors.down.isDown)
-                {
-                    this.player.setVelocityY(shipSpeed);
-            
-                }    
-            else
-                {
-                    this.player.setVelocityX(0);
-                    this.player.setVelocityY(0);
-                }   
+        // Check for cursor keys/ship movement
+        if (this.cursors.up.isDown)
+            {
+                this.player.setVelocityY(-shipSpeed)    
+            }
+        else if (this.cursors.down.isDown)
+            {
+                this.player.setVelocityY(shipSpeed);
+        
+            }    
+        else if (this.cursors.up.isUp && this.cursors.down.isUp)
+            {
+                this.player.setVelocityX(0);
+                this.player.setVelocityY(0);
+            }   
     }
 
     moveP2() {
-        if (keyJ.isDown || this.cursors.shift.isDown)
+        if (keyJ.isDown)
             {
-                if (laserDelay > 0) {
+                if (laserDelayP2 > 0) {
                     return
                 }
     
@@ -279,7 +280,7 @@ export class GameScene extends Phaser.Scene {
     }
 
     aiPlayer() {
-        if (laserDelay > 0) {
+        if (laserDelayP2 > 0) {
             return;
         }
         else {
@@ -308,7 +309,8 @@ export class GameScene extends Phaser.Scene {
 
         
         // Check for laser firing; if delay has not been fulfilled, return to prevent rapid fire
-        laserDelay -= dt;
+        laserDelayP1 -= dt;
+        laserDelayP2 -= dt;
         this.moveP1();
         this.moveP2();
         //this.aiPlayer();
