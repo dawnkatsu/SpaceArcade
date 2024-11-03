@@ -22,20 +22,23 @@ var laserDelay = laserInterval;
 // Meteor Configuration
 const asteroids_x_vel_min = -25;
 const asteroids_x_vel_max = 25;
-const asteroids_y_vel_min = -5;
-const asteroids_y_vel_max = 5;
+const asteroids_y_vel_min = -25;
+const asteroids_y_vel_max = 25;
 const asteroids_x_coverage = 200;
 const asteroids_scale_min = 1;
 const asteroids_scale_max = 1.5;
-const num_asteroids = 10;
+const num_asteroids = 5;
 const asteroids_frame_rate = 30;
 const asteroids_mass = 10000;
 
 class Laser extends Phaser.Physics.Arcade.Sprite {
-    constructor(scene, x, y) {
+    constructor(scene, x, y, player) {
         super(scene, x, y, 'laser');
     }
-    fire(x, y, flipX) {
+
+    player;
+
+    fire(x, y) {
         // Initialize laser position in reference to player ship
         // const x = this.player.x + 20;
         // const y = this.player.y;
@@ -49,7 +52,7 @@ class Laser extends Phaser.Physics.Arcade.Sprite {
 
         this.enableBody(true, x, y, true, true);
 
-        if (flipX === true) 
+        if (this.player === 'P2')
         {
             this.body.velocity.x -= laserSpeed;
         }
@@ -77,15 +80,15 @@ class Laser extends Phaser.Physics.Arcade.Sprite {
 
 class LaserGroup extends Phaser.Physics.Arcade.Group
 {
-    constructor(scene) {
+    constructor(scene, player) {
         super(scene.physics.world, scene);
+        player;
         this.createMultiple({
             classType: Laser,
             frameQuantity: laserMax,
             active: false,
             visible: false,
             key: 'laser'
-
         })
     }
 }
@@ -121,7 +124,8 @@ export class GameScene extends Phaser.Scene {
         image.setScale(scale).setScrollFactor(0)
 
         // Create laser group
-        this.laserGroup = new LaserGroup(this);
+        this.laserGroupP1 = new LaserGroup(this, this.player);
+        this.laserGroupP2 = new LaserGroup(this, this.player2);
 
         
         // Add player 1 (Left)
@@ -176,50 +180,6 @@ export class GameScene extends Phaser.Scene {
 
         });
 
-
-        // // Lasers
-        // // Create laser group
-        // this.laserGroup = this.physics.add.group({
-        //     name: `lasers-${Phaser.Math.RND.uuid()}`,
-        //     enable: false,
-        // });
-
-        // // Initialize given number of laser objects
-        // this.laserGroup.createMultiple({
-        //     key: 'laser',
-        //     quantity: laserMax,
-        //     active: false,
-        //     visible: false,
-        // });
-
-        // // Monitor laser states in order to recycle unused laser objects
-        // this.laserGroup.scene.physics.world.on(Phaser.Physics.Arcade.Events.WORLD_STEP, this.worldStep, this);
-        // this.laserGroup.once(
-        //     Phaser.GameObjects.Events.DESTROY,
-        //     () => {
-        //         this.laserGroup.scene.physics.world.off(Phaser.Physics.Arcade.Events.WORLD_STEP, this.update, this);
-        //     }, 
-        //     this
-        // );
-
-        // // // Generate meteors
-        // let meteors = this.physics.add.group({
-        //     key: 'meteor',
-        //     repeat: meteorInitialCount
-        // });
-
-        // meteors.children.iterate(function (child,player) {
-        //     // var rand_x = (player.x < 400) ? Phaser.Math.Between(400, 800) : Phaser.Math.Between(0, 400);
-        //     // var rand_y = (player.y < 300) ? Phaser.Math.Between(300, 600) : Phaser.Math.Between(0, 300);
-        //     var rand_x = Phaser.Math.Between(meteorXmin, meteorXmax);
-        //     var rand_y = Phaser.Math.Between(meteorYmin, meteorYmax);
-        //     child.setPosition(rand_x,rand_y);
-        //     child.setVelocity(Phaser.Math.Between(-meteorSpeed, meteorSpeed), Phaser.Math.Between(-meteorSpeed, meteorSpeed));
-        //     child.allowGravity = false;
-
-        // });
-
-
         // //  Input Events
         this.cursors = this.input.keyboard.createCursorKeys();
 
@@ -242,11 +202,12 @@ export class GameScene extends Phaser.Scene {
         this.physics.add.collider(this.player2, this.meteors, this.hitByMeteor, null, this);
 
         // Hit by enemy laser
-        this.physics.add.collider(this.player, this.laserGroup, this.hitByLaser, null, this);
-        this.physics.add.collider(this.player2, this.laserGroup, this.hitByLaser, null, this);
+        this.physics.add.collider(this.player, this.laserGroupP2, this.hitByLaser, null, this);
+        this.physics.add.collider(this.player2, this.laserGroupP1, this.hitByLaser, null, this);
         
         // Shoot meteor collision/physics
-        this.physics.add.collider(this.laserGroup, this.meteors, this.shotMeteor, null, this);
+        this.physics.add.collider(this.laserGroupP1, this.meteors, this.shotMeteor, null, this);
+        this.physics.add.collider(this.laserGroupP2, this.meteors, this.shotMeteor, null, this);
         
         }
     
@@ -257,7 +218,7 @@ export class GameScene extends Phaser.Scene {
                     return
                 }
     
-                this.fireLaser(this.player, this.player.x, this.player.y)
+                this.fireLaser(this.laserGroupP1, this.player.x, this.player.y)
             }
     
             
@@ -285,7 +246,7 @@ export class GameScene extends Phaser.Scene {
                     return
                 }
     
-                this.fireLaser(this.player2, this.player2.x, this.player2.y)
+                this.fireLaser(this.laserGroupP2, this.player2.x, this.player2.y)
             }
 
         if (keyW.isDown) 
@@ -324,7 +285,7 @@ export class GameScene extends Phaser.Scene {
 
         this.physics.pause();
         this.player.setTint(0xff0000);
-        //this.gameOver = true;
+        this.gameOver = true;
     }
 
     destroyMeteor(laser,meteor) {
@@ -355,41 +316,61 @@ export class GameScene extends Phaser.Scene {
     }
 
     shotMeteor(laser, meteor) {
-        if (laser.flipX === false) {
-        console.log(laser.flipX)
+        if (laser.player === 'P1') {
         this.destroyMeteor(laser, meteor);
         scoreP1 += 100;
         this.scoreP1Text.setText(`SCORE: ${scoreP1}`)
         }
 
-        else if (laser.flipX === true) {
+        else if (laser.player === 'P2') {
+        this.destroyMeteor(laser, meteor);
         scoreP2 += 100;
         this.scoreP2Text.setText(`SCORE: ${scoreP2}`)
         }
     }
 
-    hitByLaser(meteor) {
-        meteor.play('explosion');
+    hitByLaser(player, laser) {
+        player.body.setVelocityX(0);
+        laser.disableBody(true, true);
+        if (laser.player === 'P1') {
+            scoreP2 -= 100
+            if (scoreP2 <= 0) {
+                scoreP2 = 0;
+                this.scoreP2Text.setText(`SCORE: ${scoreP2}`)
+            }
+            this.scoreP2Text.setText(`SCORE: ${scoreP2}`)
+        }
+
+        if (laser.player === 'P2') {
+            scoreP1 -= 100
+            if (scoreP1 <= 0) {
+                scoreP1 = 0;
+                this.scoreP1Text.setText(`SCORE: ${scoreP1}`)
+            }
+            this.scoreP1Text.setText(`SCORE: ${scoreP1}`)
+        }
     }
 
     // Helper function to fire lasers
-    fireLaser(player, x, y) {
+    fireLaser(laserGroup, x, y) {
         // Get first inactive laser object from laser group
-        const laser = this.laserGroup.getFirstDead();
-        var flipX = false;
+        const laser = laserGroup.getFirstDead();
+
+        if (laserGroup === this.laserGroupP1) {
+            laser.player = 'P1';
+        }
+
+        if (laserGroup === this.laserGroupP2) {
+            laser.player = 'P2';
+        }
 
         // If there are no inactive laser objects (i.e. out of bullets), then return
         if (laser === undefined || laser === null) {
             return;
         }
 
-        // Set laser direction
-        if (player === this.player2) {
-            flipX = true;
-        }
-
         // Fire laser from laser class
-        laser.fire(x, y, flipX)
+        laser.fire(x, y)
 
         // Play laser sound effect
         this.sound.play('laserShot', {
@@ -399,20 +380,6 @@ export class GameScene extends Phaser.Scene {
         });
                 
     }
-
-    // Helper function utilizing WORLD_STEP to destroy idle laser objects
-    // worldStep(delta) {
-    //     this.laserGroup.getChildren().forEach((laser) => {
-    //         if (!laser.active) {
-    //             return;
-    //         }
-
-    //         laser.state -= delta;
-    //         if (laser.state <= 0) {
-    //             laser.disableBody(true, true);
-    //         }
-    //     });
-    // }
 
     adjustVelocity() {
         
