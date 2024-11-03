@@ -12,9 +12,13 @@ let keyW;
 let keyS;
 let keyJ;
 
+// AI Configuration
+const controls = [shipSpeed, -shipSpeed];
+var random = Phaser.Math.Between(0,1);
+
 // Laser Configuration
 const laserMax = 30;
-const laserInterval = 300;
+const laserInterval = 450;
 const laserSpeed = 200;
 const laserLifespan = 5;
 var laserDelay = laserInterval;
@@ -144,6 +148,12 @@ export class GameScene extends Phaser.Scene {
         keyS = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S);
         keyJ = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.J);
 
+        // AI
+        this.timer = this.time.addEvent({
+            delay: Phaser.Math.Between(1000, 5000)
+        })
+
+
         // //  Animations
         this.anims.create(
             {
@@ -244,7 +254,7 @@ export class GameScene extends Phaser.Scene {
     }
 
     moveP2() {
-        if (keyJ.isDown)
+        if (keyJ.isDown || this.cursors.shift.isDown)
             {
                 if (laserDelay > 0) {
                     return
@@ -263,23 +273,45 @@ export class GameScene extends Phaser.Scene {
         }
         else
         {
+            this.player2.setVelocityX(0);
             this.player2.setVelocityY(0);
-            this.player2.setAccelerationX(0);
+        }
+    }
+
+    aiPlayer() {
+        if (laserDelay > 0) {
+            return;
+        }
+        else {
+            this.fireLaser(this.laserGroupP2, this.player2.x, this.player2.y)
         }
 
+        const controls = [shipSpeed, -shipSpeed];
+        var random = Phaser.Math.Between(0,1);
 
+
+        const remaining = this.timer.getRemaining();
+        if (remaining >= 0) {
+            this.player2.setVelocityY(controls[random]);
+        };
+        if (remaining === 0) {
+            this.time.addEvent(this.timer);
+            random = Phaser.Math.Between(0,1);
+        };
     }
 
     update(ts, dt) {
         if (this.gameOver)
             {
                 this.scene.start('bootGame', scoreP1 = 0, scoreP2 = 0);
-            }
+            }        
 
+        
         // Check for laser firing; if delay has not been fulfilled, return to prevent rapid fire
         laserDelay -= dt;
         this.moveP1();
         this.moveP2();
+        //this.aiPlayer();
     }
 
     hitByMeteor(player, meteor) {
