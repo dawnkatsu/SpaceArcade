@@ -27,9 +27,13 @@ const asteroids_y_vel_max = 25;
 const asteroids_x_coverage = 200;
 const asteroids_scale_min = 1;
 const asteroids_scale_max = 1.5;
-const num_asteroids = 5;
+const num_asteroids = 25;
 const asteroids_frame_rate = 30;
 const asteroids_mass = 10000;
+
+// Point Configuration
+const meteorScore = 100;
+const hitPenalty = 100;
 
 class Laser extends Phaser.Physics.Arcade.Sprite {
     constructor(scene, x, y, player) {
@@ -269,7 +273,7 @@ export class GameScene extends Phaser.Scene {
     update(ts, dt) {
         if (this.gameOver)
             {
-                this.scene.start('bootGame', scoreP1 = 0);
+                this.scene.start('bootGame', scoreP1 = 0, scoreP2 = 0);
             }
 
         // Check for laser firing; if delay has not been fulfilled, return to prevent rapid fire
@@ -318,13 +322,13 @@ export class GameScene extends Phaser.Scene {
     shotMeteor(laser, meteor) {
         if (laser.player === 'P1') {
         this.destroyMeteor(laser, meteor);
-        scoreP1 += 100;
+        scoreP1 += meteorScore;
         this.scoreP1Text.setText(`SCORE: ${scoreP1}`)
         }
 
         else if (laser.player === 'P2') {
         this.destroyMeteor(laser, meteor);
-        scoreP2 += 100;
+        scoreP2 += meteorScore;
         this.scoreP2Text.setText(`SCORE: ${scoreP2}`)
         }
     }
@@ -333,7 +337,7 @@ export class GameScene extends Phaser.Scene {
         player.body.setVelocityX(0);
         laser.disableBody(true, true);
         if (laser.player === 'P1') {
-            scoreP2 -= 100
+            scoreP2 -= hitPenalty;
             if (scoreP2 <= 0) {
                 scoreP2 = 0;
                 this.scoreP2Text.setText(`SCORE: ${scoreP2}`)
@@ -342,7 +346,7 @@ export class GameScene extends Phaser.Scene {
         }
 
         if (laser.player === 'P2') {
-            scoreP1 -= 100
+            scoreP1 -= hitPenalty;
             if (scoreP1 <= 0) {
                 scoreP1 = 0;
                 this.scoreP1Text.setText(`SCORE: ${scoreP1}`)
