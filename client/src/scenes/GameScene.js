@@ -1,5 +1,6 @@
 import Phaser from '../../lib/phaser.js'
 import * as WebFontLoader from '../../lib/webfontloader.js'
+import { MenuScene } from './MenuScene.js';
 
 
 // Player 1 Configuration
@@ -40,67 +41,6 @@ const asteroids_mass = 10000;
 const meteorScore = 100;
 const hitPenalty = 100;
 
-class Laser extends Phaser.Physics.Arcade.Sprite {
-    constructor(scene, x, y, player) {
-        super(scene, x, y, 'laser');
-    }
-
-    player;
-
-    fire(x, y) {
-        // Initialize laser position in reference to player ship
-        // const x = this.player.x + 20;
-        // const y = this.player.y;
-        if (x <= 400) {
-            x = x + 20;
-        }
-        else if (x > 400) {
-            x = x - 20;
-        }
-
-
-        this.enableBody(true, x, y, true, true);
-
-        if (this.player === 'P2')
-        {
-            this.body.velocity.x -= laserSpeed;
-            laserDelayP2 = laserInterval;
-        }
-        else 
-        {
-            this.body.velocity.x += laserSpeed;
-            laserDelayP1 = laserInterval;
-        }
-
-
-        // Lifespan of laser object before being recycled
-        this.setState(laserLifespan)
-    }
-
-    preUpdate(time, delta) {
-        super.preUpdate(time, delta);
-
-        if (this.x <= 0 || this.x >= 800) {
-            this.setActive(false);
-            this.setVisible(false);
-        }
-    }
-}
-
-class LaserGroup extends Phaser.Physics.Arcade.Group
-{
-    constructor(scene, player) {
-        super(scene.physics.world, scene);
-        player;
-        this.createMultiple({
-            classType: Laser,
-            frameQuantity: laserMax,
-            active: false,
-            visible: false,
-            key: 'laser'
-        })
-    }
-}
 
 export class GameScene extends Phaser.Scene {
     constructor() {
@@ -125,7 +65,6 @@ export class GameScene extends Phaser.Scene {
         this.physics.world.setBounds(0, 40, this.scale.width, this.scale.height - 50);
 
         //  A simple background for our game
-        this.add.image(400, 300, 'space');
         let image = this.add.image(this.cameras.main.width / 2, this.cameras.main.height / 2, 'space')
         let scaleX = this.cameras.main.width / image.width
         let scaleY = this.cameras.main.height / image.height
@@ -155,7 +94,7 @@ export class GameScene extends Phaser.Scene {
         })
 
 
-        // //  Animations
+        //  Animations
         this.anims.create(
             {
                 key: "degredation",
@@ -315,8 +254,8 @@ export class GameScene extends Phaser.Scene {
         laserDelayP1 -= dt;
         laserDelayP2 -= dt;
         this.moveP1();
-        this.moveP2();
-        //this.aiPlayer();
+        //this.moveP2();
+        this.aiPlayer();
     }
 
     hitByMeteor(player, meteor) {
@@ -372,7 +311,11 @@ export class GameScene extends Phaser.Scene {
 
     hitByLaser(player, laser) {
         player.body.setVelocityX(0);
+
+        // Disable laser object on impact
         laser.disableBody(true, true);
+
+        // If P1 shot laser, penalize P2
         if (laser.player === 'P1') {
             scoreP2 -= hitPenalty;
             if (scoreP2 <= 0) {
@@ -382,6 +325,7 @@ export class GameScene extends Phaser.Scene {
             this.scoreP2Text.setText(`SCORE: ${scoreP2}`)
         }
 
+        // If P2 shot laser, penalize P1
         if (laser.player === 'P2') {
             scoreP1 -= hitPenalty;
             if (scoreP1 <= 0) {
@@ -397,6 +341,7 @@ export class GameScene extends Phaser.Scene {
         // Get first inactive laser object from laser group
         const laser = laserGroup.getFirstDead();
 
+        // Store which player fired the laser
         if (laserGroup === this.laserGroupP1) {
             laser.player = 'P1';
         }
@@ -423,6 +368,74 @@ export class GameScene extends Phaser.Scene {
     }
 
     adjustVelocity() {
-        
+    }
+}
+
+/* 
+ *  LaserGroup creates multiple Laser objects with key 'laser'
+ *  laserMax variable designates how many Laser objects to be created
+ */
+
+class LaserGroup extends Phaser.Physics.Arcade.Group
+{
+    constructor(scene, player) {
+        super(scene.physics.world, scene);
+        player;
+        this.createMultiple({
+            classType: Laser,
+            frameQuantity: laserMax,
+            active: false,
+            visible: false,
+            key: 'laser'
+        })
+    }
+}
+
+/*
+ * Laser class that dictates laser behavior
+ * variables: laserInterval, laserLifespan
+ */
+class Laser extends Phaser.Physics.Arcade.Sprite {
+    constructor(scene, x, y, player) {
+        super(scene, x, y, 'laser');
+    }
+
+    player;
+
+    fire(x, y) {
+        // Initialize laser position in reference to player ship
+        if (x <= 400) {
+            x = x + 20;
+        }
+        else if (x > 400) {
+            x = x - 20;
+        }
+
+        this.enableBody(true, x, y, true, true);
+
+        // If P2 fired, flip laser/velocity direction
+        if (this.player === 'P2')
+        {
+            this.body.velocity.x -= laserSpeed;
+            laserDelayP2 = laserInterval;
+        }
+        else 
+        {
+            this.body.velocity.x += laserSpeed;
+            laserDelayP1 = laserInterval;
+        }
+
+        // Lifespan of laser object before being recycled
+        this.setState(laserLifespan)
+    }
+
+    preUpdate(time, delta) {
+        super.preUpdate(time, delta);
+
+        // If laser object goes past game window, set inactive for reuse
+        if (this.x <= 0 || this.x >= 800) {
+            this.setActive(false);
+            this.setVisible(false);
+        }
     }
 }
