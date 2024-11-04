@@ -12,7 +12,7 @@
  * Version: 1.0
  */
 
-class SocketHandler {
+export class SocketHandler {
     /**
      * Initializes the SocketHandler.
      * Sets up the socket connection and initializes event listeners.
@@ -127,6 +127,12 @@ class SocketHandler {
         this.eventListeners[event].push(callback);
     }
 
+    off(event, callback) {
+        if (this.eventListeners[event]) {
+            this.eventListeners[event] = this.eventListeners[event].filter(cb => cb !== callback);
+        }
+    }
+
     /**
      * Triggers all registered callbacks for a specific event.
      * @param {string} event - The name of the event to trigger.
@@ -142,9 +148,10 @@ class SocketHandler {
      * Disconnects the socket from the server.
      */
     disconnect() {
+        this.eventListeners = {};
         this.socket.disconnect();
     }
 }
 
-// Create a global instance of the SocketHandler
-const socketHandler = new SocketHandler();
+// Export a singleton instance
+export default new SocketHandler();

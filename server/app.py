@@ -12,26 +12,55 @@ Date: 10/31/2024
 Version: 1.0
 """
 
-from flask import Flask, render_template
+from flask import Flask, request, session, send_from_directory
 from flask_socketio import SocketIO, emit, join_room, leave_room
 import os
-import time
+import random
+import string
+import mimetypes
+from game_logic import GameState
+
+# Ensure correct MIME types are set
+mimetypes.add_type('application/javascript', '.js')
+mimetypes.add_type('text/css', '.css')
+mimetypes.add_type('image/png', '.png')
+mimetypes.add_type('audio/wav', '.wav')
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'fallback_secret_key') # We will not be actively using this with Flask-SocketIO but are including it to align with Flask best practices for potential future expansion. 
 socketio = SocketIO(app)
 
+# Get the absolute path to the project root directory
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+@app.route('/')
+def serve_index():
+    return send_from_directory(os.path.join(PROJECT_ROOT, 'client'), 'index.html')
+
+@app.route('/assets/<path:path>')
+def serve_assets(path):
+    return send_from_directory(
+        os.path.join(PROJECT_ROOT, 'assets'), 
+        path,
+        mimetype=mimetypes.guess_type(path)[0])
+
+@app.route('/<path:path>')
+def serve_client(path):
+    return send_from_directory(
+        os.path.join(PROJECT_ROOT, 'client'), 
+        path,
+        mimetype=mimetypes.guess_type(path)[0])
+
 # Game state management
 games = {}
 
-@app.route('/')
 def index():
     """
     Render the main page of the application.
     
     :return: Rendered HTML template
     """
-    return render_template('index.html')
+    return send_from_directory(app.static_folder, 'index.html')
 
 def generate_game_id():
     """Generate a short, unique game ID."""
@@ -205,4 +234,6 @@ def game_loop(game_id):
         socketio.sleep(1/60)  # 60 FPS
 
 if __name__ == '__main__':
-    socketio.run(app, debug=True)
+    print("Server starting... Access the game at http://localhost:5000")
+    print(f"Project root: {PROJECT_ROOT}")
+    socketio.run(app, debug=True, host='0.0.0.0', port=5000)
