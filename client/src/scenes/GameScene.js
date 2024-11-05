@@ -274,12 +274,12 @@ export class GameScene extends Phaser.Scene {
         // Deduct P1 score for crashing into meteor
         console.log(player.texture.key, ' hit!')
         player.disableBody(true, true);
-        this.time.delayedCall(5000, this.reset(player), [], this);
+        this.time.delayedCall(CURRENT_SETTINGS.spawnDelay, this.reset, [player], this);
         if (player.texture.key === 'spaceship') {
             //player.disableBody(true, true);
             //this.time.delayedCall(5000, this.reset(player), [], this);
             //console.log(spawnTimerP1.getRemaining());
-            scoreP1 -= 250;
+            scoreP1 -= CURRENT_SETTINGS.hitByMeteorPenalty;
             if (scoreP1 <= 0) {
                 scoreP1 = 0;
             }
@@ -290,7 +290,7 @@ export class GameScene extends Phaser.Scene {
         if (player.texture.key === 'spaceship2') {
             //player.disableBody(true, true);
             //this.time.delayedCall(5000, this.reset(player), [], this);
-            scoreP2 -= 250;
+            scoreP2 -= CURRENT_SETTINGS.hitByMeteorPenalty;
             if (scoreP2 <= 0) {
                 scoreP2 = 0;
             }
@@ -352,13 +352,18 @@ export class GameScene extends Phaser.Scene {
 
     hitByLaser(player, laser) {
         player.body.setVelocityX(0);
+        
+        player.disableBody(true, true);
 
         // Disable laser object on impact
         laser.disableBody(true, true);
 
+
+        this.time.delayedCall(CURRENT_SETTINGS.spawnDelay, this.reset, [player], this);
+
         // If P1 shot laser, penalize P2
         if (laser.player === 'P1') {
-            scoreP2 -= CURRENT_SETTINGS.hitPenalty;
+            scoreP2 -= CURRENT_SETTINGS.hitByLaserPenalty;
             if (scoreP2 <= 0) {
                 scoreP2 = 0;
                 //this.scoreP2Text.setText(`SCORE: ${scoreP2}`)
@@ -368,7 +373,7 @@ export class GameScene extends Phaser.Scene {
 
         // If P2 shot laser, penalize P1
         if (laser.player === 'P2') {
-            scoreP1 -= CURRENT_SETTINGS.hitPenalty;
+            scoreP1 -= CURRENT_SETTINGS.hitByLaserPenalty;
             if (scoreP1 <= 0) {
                 scoreP1 = 0;
                 //this.scoreP1Text.setText(`SCORE: ${scoreP1}`)

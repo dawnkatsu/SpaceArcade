@@ -3,8 +3,9 @@ export class Settings {
         // Mode select flag
         this.isSinglePlayer = 0;
 
-        // Game Duration
+        // Game Settings
         this.gameDuration = 60000;
+        this.spawnDelay = 2000;
 
         // Ship Configuration
         this.shipSpeed = 150;
@@ -21,13 +22,14 @@ export class Settings {
         this.asteroids_x_coverage = 200;
         this.asteroids_scale_min = 1;
         this.asteroids_scale_max = 1.5;
-        this.num_asteroids = 25;
+        this.num_asteroids = 50;
         this.asteroids_frame_rate = 30;
         this.asteroids_mass = 10000;
 
         // Point Configuration
         this.meteorScore = 100;
-        this.hitPenalty = 100;
+        this.hitByLaserPenalty = 100;
+        this.hitByMeteorPenalty = 250;
 
 
     }
