@@ -3,6 +3,9 @@ import * as WebFontLoader from '../../lib/webfontloader.js'
 import { MenuScene } from './MenuScene.js';
 import { CURRENT_SETTINGS } from '../settings.js';
 
+// Game Timer Variable
+var gameTime;
+
 // Player 1 Variables
 var scoreP1 = 0;
 
@@ -15,6 +18,7 @@ let keyJ;
 // Laser Variables
 var laserDelayP1 = CURRENT_SETTINGS.laserInterval;
 var laserDelayP2 = CURRENT_SETTINGS.laserInterval;
+
 
 export class GameScene extends Phaser.Scene {
     constructor() {
@@ -70,6 +74,17 @@ export class GameScene extends Phaser.Scene {
             delay: Phaser.Math.Between(1000, 5000)
         })
 
+        // Game Timer
+        this.gameTimer = this.time.addEvent({
+            delay: CURRENT_SETTINGS.gameDuration,
+        })
+
+        // Spawn Timer
+        // this.spawnTimer = this.time.addEvent({
+        //     delay: 5000,
+        //     callback: 
+        // })
+
 
         //  Animations
         this.anims.create(
@@ -114,9 +129,11 @@ export class GameScene extends Phaser.Scene {
         // //  Input Events
         this.cursors = this.input.keyboard.createCursorKeys();
 
-        // //  The score
+        // //  The score and game timer
         this.scoreP1Text = this.add.text(this.scale.width * .2, 20, `SCORE: ${scoreP1}`, { fontSize: '12px'});
         this.scoreP2Text = this.add.text(this.scale.width * .75, 20, `SCORE: ${scoreP2}`, { fontSize: '12px'});
+        this.gameTimeText = this.add.text(this.scale.width / 2, 20, gameTime, {fontSize: '12px'});
+
         WebFontLoader.default.load({
             google: {
                 families: ['Press Start 2P']
@@ -124,9 +141,9 @@ export class GameScene extends Phaser.Scene {
             active: () => {
                 this.scoreP1Text.setFontFamily('"Press Start 2P"').setColor('#ffffff');
                 this.scoreP2Text.setFontFamily('"Press Start 2P"').setColor('#ffffff');
+                this.gameTimeText.setFontFamily('"Press Start 2P"').setColor('#ffffff');
             }
         })
-
 
         // // Hit by meteor. Game over
         this.physics.add.collider(this.player, this.meteors, this.hitByMeteor, null, this);
@@ -139,9 +156,8 @@ export class GameScene extends Phaser.Scene {
         // Shoot meteor collision/physics
         this.physics.add.collider(this.laserGroupP1, this.meteors, this.shotMeteor, null, this);
         this.physics.add.collider(this.laserGroupP2, this.meteors, this.shotMeteor, null, this);
-        
         }
-    
+
     moveP1() {
         // Check for cursor keys/ship movement
         if (this.cursors.up.isDown)
@@ -211,6 +227,7 @@ export class GameScene extends Phaser.Scene {
 
 
         const remaining = this.timer.getRemaining();
+        //console.log(remaining);
         if (remaining >= 0) {
             this.player2.setVelocityY(controls[random]);
         };
@@ -219,6 +236,17 @@ export class GameScene extends Phaser.Scene {
             random = Phaser.Math.Between(0,1);
         };
     }
+
+    reset(player) {
+        if (player.texture.key === 'spaceship') {
+            player.enableBody(true, 25, 300, true, true);
+        }
+
+        else if (player.texture.key === 'spaceship2') {
+            player.enableBody(true, this.scale.width - 25, 300, true, true);
+        }
+     }
+
 
     update(ts, dt) {
         if (this.gameOver)
@@ -237,17 +265,46 @@ export class GameScene extends Phaser.Scene {
         }
         else if (CURRENT_SETTINGS.isSinglePlayer === false) {
             this.moveP2();
-        }    
+        } 
+        
+        this.endGame();
     }
 
     hitByMeteor(player, meteor) {
+        // Deduct P1 score for crashing into meteor
+        console.log(player.texture.key, ' hit!')
+        player.disableBody(true, true);
+        this.time.delayedCall(5000, this.reset(player), [], this);
+        if (player.texture.key === 'spaceship') {
+            //player.disableBody(true, true);
+            //this.time.delayedCall(5000, this.reset(player), [], this);
+            //console.log(spawnTimerP1.getRemaining());
+            scoreP1 -= 250;
+            if (scoreP1 <= 0) {
+                scoreP1 = 0;
+            }
+            this.scoreP1Text.setText(`SCORE: ${scoreP1}`)
+        }
+
+        // Deduct P2 score for crashing into meteor
+        if (player.texture.key === 'spaceship2') {
+            //player.disableBody(true, true);
+            //this.time.delayedCall(5000, this.reset(player), [], this);
+            scoreP2 -= 250;
+            if (scoreP2 <= 0) {
+                scoreP2 = 0;
+            }
+            this.scoreP2Text.setText(`SCORE: ${scoreP2}`)
+
+        }
+
         // Ship and meteor explodes
         meteor.play("explosion")
-        player.play("explosion")
+        // player.play("explosion")
 
-        this.physics.pause();
-        this.player.setTint(0xff0000);
-        this.gameOver = true;
+        //this.physics.pause();
+        //this.player.setTint(0xff0000);
+        //this.gameOver = true;
     }
 
     destroyMeteor(laser,meteor) {
@@ -264,7 +321,6 @@ export class GameScene extends Phaser.Scene {
             meteor.once('animationcomplete', () => {
                 meteor.destroy(true)
             })
-            //console.log(laser.player)
         }
         else {
             this.sound.play('asteroidExplosion', {
@@ -305,7 +361,7 @@ export class GameScene extends Phaser.Scene {
             scoreP2 -= CURRENT_SETTINGS.hitPenalty;
             if (scoreP2 <= 0) {
                 scoreP2 = 0;
-                this.scoreP2Text.setText(`SCORE: ${scoreP2}`)
+                //this.scoreP2Text.setText(`SCORE: ${scoreP2}`)
             }
             this.scoreP2Text.setText(`SCORE: ${scoreP2}`)
         }
@@ -315,7 +371,7 @@ export class GameScene extends Phaser.Scene {
             scoreP1 -= CURRENT_SETTINGS.hitPenalty;
             if (scoreP1 <= 0) {
                 scoreP1 = 0;
-                this.scoreP1Text.setText(`SCORE: ${scoreP1}`)
+                //this.scoreP1Text.setText(`SCORE: ${scoreP1}`)
             }
             this.scoreP1Text.setText(`SCORE: ${scoreP1}`)
         }
@@ -351,6 +407,17 @@ export class GameScene extends Phaser.Scene {
         });
                 
     }
+
+    endGame() {
+        gameTime = this.gameTimer.getOverallRemainingSeconds();
+        this.gameTimeText.setText(Math.round(gameTime));
+
+
+        if (this.gameTimer.getRemaining() === 0) {
+            this.gameOver = true;
+        }
+    }
+    
 
     adjustVelocity() {
     }

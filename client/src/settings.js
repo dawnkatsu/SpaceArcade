@@ -3,6 +3,9 @@ export class Settings {
         // Mode select flag
         this.isSinglePlayer = 0;
 
+        // Game Duration
+        this.gameDuration = 60000;
+
         // Ship Configuration
         this.shipSpeed = 150;
         this.laserMax = 30;
@@ -11,10 +14,10 @@ export class Settings {
         this.laserLifespan = 5;
 
         // Asteroids Configuration
-        this.asteroids_x_vel_min = -25;
-        this.asteroids_x_vel_max = 25;
-        this.asteroids_y_vel_min = -25;
-        this.asteroids_y_vel_max = 25;
+        this.asteroids_x_vel_min = -50;
+        this.asteroids_x_vel_max = 50;
+        this.asteroids_y_vel_min = -50;
+        this.asteroids_y_vel_max = 50;
         this.asteroids_x_coverage = 200;
         this.asteroids_scale_min = 1;
         this.asteroids_scale_max = 1.5;
