@@ -1,6 +1,8 @@
 import Phaser from '../../lib/phaser.js'
 import * as WebFontLoader from '../../lib/webfontloader.js'
 import { GameScene } from './GameScene.js'
+import { CURRENT_SETTINGS } from '../settings.js';
+
 
 export class MenuScene extends Phaser.Scene {
     constructor() {
@@ -103,6 +105,7 @@ export class MenuScene extends Phaser.Scene {
         })
 
         pvp.on('pointerdown', () => {
+            CURRENT_SETTINGS.isSinglePlayer = false;
             this.scene.start('playGame')
         })
 
@@ -120,6 +123,7 @@ export class MenuScene extends Phaser.Scene {
         })
 
         pvc.on('pointerdown', () => {
+            CURRENT_SETTINGS.isSinglePlayer = true;
             this.scene.start('playGame')
         })
     }

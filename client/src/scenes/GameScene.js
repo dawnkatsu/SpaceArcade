@@ -1,7 +1,7 @@
 import Phaser from '../../lib/phaser.js'
 import * as WebFontLoader from '../../lib/webfontloader.js'
 import { MenuScene } from './MenuScene.js';
-
+import { CURRENT_SETTINGS } from '../settings.js';
 
 // Player 1 Configuration
 const shipSpeed = 150;
@@ -45,7 +45,10 @@ const hitPenalty = 100;
 export class GameScene extends Phaser.Scene {
     constructor() {
         super('playGame');
+    }
 
+    init() {
+        this.isSinglePlayer = 0;
     }
 
     preload() {
@@ -254,8 +257,13 @@ export class GameScene extends Phaser.Scene {
         laserDelayP1 -= dt;
         laserDelayP2 -= dt;
         this.moveP1();
-        //this.moveP2();
-        this.aiPlayer();
+
+        if (CURRENT_SETTINGS.isSinglePlayer === true) {
+            this.aiPlayer();
+        }
+        else if (CURRENT_SETTINGS.isSinglePlayer === false) {
+            this.moveP2();
+        }    
     }
 
     hitByMeteor(player, meteor) {
@@ -269,7 +277,6 @@ export class GameScene extends Phaser.Scene {
     }
 
     destroyMeteor(laser,meteor) {
-
         let calculated_final_v = (laserSpeed+meteor.init_x_vel*asteroids_mass)/asteroids_mass
         meteor.body.setVelocityX(calculated_final_v)
         meteor.init_x_vel = calculated_final_v
@@ -283,6 +290,7 @@ export class GameScene extends Phaser.Scene {
             meteor.once('animationcomplete', () => {
                 meteor.destroy(true)
             })
+            //console.log(laser.player)
         }
         else {
             this.sound.play('asteroidExplosion', {
@@ -292,6 +300,7 @@ export class GameScene extends Phaser.Scene {
             })
             meteor.play("degredation")
             meteor.setOffset(35.3,32.55)
+            //console.log(laser.player)
         }
     }
 
