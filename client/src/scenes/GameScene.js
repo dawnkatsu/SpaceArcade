@@ -183,7 +183,7 @@ export class GameScene extends Phaser.Scene {
                     return
                 }
     
-                this.fireLaser(this.laserGroupP1, this.player.x, this.player.y)
+                this.fireLaser(this.player, this.laserGroupP1, this.player.x, this.player.y)
             }
     }
 
@@ -210,7 +210,7 @@ export class GameScene extends Phaser.Scene {
                     return
                 }
     
-                this.fireLaser(this.laserGroupP2, this.player2.x, this.player2.y)
+                this.fireLaser(this.player2, this.laserGroupP2, this.player2.x, this.player2.y)
             }
     }
 
@@ -383,7 +383,7 @@ export class GameScene extends Phaser.Scene {
     }
 
     // Helper function to fire lasers
-    fireLaser(laserGroup, x, y) {
+    fireLaser(player, laserGroup, x, y) {
         // Get first inactive laser object from laser group
         const laser = laserGroup.getFirstDead();
 
@@ -398,6 +398,11 @@ export class GameScene extends Phaser.Scene {
 
         // If there are no inactive laser objects (i.e. out of bullets), then return
         if (laser === undefined || laser === null) {
+            return;
+        }
+
+        // If player is inactive, return
+        if (!player.active) {
             return;
         }
 
