@@ -1,6 +1,7 @@
 import Phaser from '../../lib/phaser.js'
 import * as WebFontLoader from '../../lib/webfontloader.js'
 import { MenuScene } from './MenuScene.js';
+import { EndScene } from './endScene.js';
 import { CURRENT_SETTINGS } from '../settings.js';
 
 // Game Timer Variable
@@ -36,6 +37,7 @@ export class GameScene extends Phaser.Scene {
         this.load.spritesheet('asteroid', '../assets/sprites/Asteroid 01 - Explode.png', { frameWidth: 90, frameHeight: 90, frame: 0 });
         this.load.audio('laserShot', '../assets/sounds/laser.wav');
         this.load.audio('asteroidExplosion', '../assets/sounds/explosion.wav');
+        this.load.audio('shipExplosion', '../assets/sounds/explosion12.wav');
     }
 
     create() {
@@ -251,7 +253,7 @@ export class GameScene extends Phaser.Scene {
     update(ts, dt) {
         if (this.gameOver)
             {
-                this.scene.start('bootGame', scoreP1 = 0, scoreP2 = 0);
+                this.scene.start('endGame', {scoreP1: scoreP1, scoreP2: scoreP2});
             }        
 
         
@@ -274,6 +276,10 @@ export class GameScene extends Phaser.Scene {
         // Deduct P1 score for crashing into meteor
         console.log(player.texture.key, ' hit!')
         player.disableBody(true, true);
+        this.sound.play('shipExplosion', {
+            volume: .3,
+            detune: 0
+        })
         this.time.delayedCall(CURRENT_SETTINGS.spawnDelay, this.reset, [player], this);
         if (player.texture.key === 'spaceship') {
             //player.disableBody(true, true);

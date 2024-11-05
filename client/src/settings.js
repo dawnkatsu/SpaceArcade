@@ -4,7 +4,7 @@ export class Settings {
         this.isSinglePlayer = 0;
 
         // Game Settings
-        this.gameDuration = 60000;
+        this.gameDuration = 10000;
         this.spawnDelay = 2000;
 
         // Ship Configuration

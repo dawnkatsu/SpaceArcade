@@ -1,6 +1,7 @@
 import Phaser from '../../lib/phaser.js'
 import * as WebFontLoader from '../../lib/webfontloader.js'
 import { GameScene } from './GameScene.js'
+import { EndScene } from './endScene.js';
 import { CURRENT_SETTINGS } from '../settings.js';
 
 
