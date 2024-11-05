@@ -12,18 +12,9 @@ let keyW;
 let keyS;
 let keyJ;
 
-// AI Variables
-const controls = [CURRENT_SETTINGS.shipSpeed, -CURRENT_SETTINGS.shipSpeed];
-var random = Phaser.Math.Between(0,1);
-
 // Laser Variables
 var laserDelayP1 = CURRENT_SETTINGS.laserInterval;
 var laserDelayP2 = CURRENT_SETTINGS.laserInterval;
-
-// Point Configuration
-const meteorScore = 100;
-const hitPenalty = 100;
-
 
 export class GameScene extends Phaser.Scene {
     constructor() {
@@ -215,7 +206,7 @@ export class GameScene extends Phaser.Scene {
             this.fireLaser(this.laserGroupP2, this.player2.x, this.player2.y)
         }
 
-        const controls = [shipSpeed, -shipSpeed];
+        const controls = [CURRENT_SETTINGS.shipSpeed, -CURRENT_SETTINGS.shipSpeed];
         var random = Phaser.Math.Between(0,1);
 
 
