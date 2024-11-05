@@ -3,39 +3,22 @@ import * as WebFontLoader from '../../lib/webfontloader.js'
 import { MenuScene } from './MenuScene.js';
 import { CURRENT_SETTINGS } from '../settings.js';
 
-// Player 1 Configuration
-const shipSpeed = 150;
+// Player 1 Variables
 var scoreP1 = 0;
 
-// Player 2 Configuration
+// Player 2 Variables
 var scoreP2 = 0;
 let keyW;
 let keyS;
 let keyJ;
 
-// AI Configuration
-const controls = [shipSpeed, -shipSpeed];
+// AI Variables
+const controls = [CURRENT_SETTINGS.shipSpeed, -CURRENT_SETTINGS.shipSpeed];
 var random = Phaser.Math.Between(0,1);
 
-// Laser Configuration
-const laserMax = 30;
-const laserInterval = 450;
-const laserSpeed = 200;
-const laserLifespan = 5;
-var laserDelayP1 = laserInterval;
-var laserDelayP2 = laserInterval;
-
-// Meteor Configuration
-const asteroids_x_vel_min = -25;
-const asteroids_x_vel_max = 25;
-const asteroids_y_vel_min = -25;
-const asteroids_y_vel_max = 25;
-const asteroids_x_coverage = 200;
-const asteroids_scale_min = 1;
-const asteroids_scale_max = 1.5;
-const num_asteroids = 25;
-const asteroids_frame_rate = 30;
-const asteroids_mass = 10000;
+// Laser Variables
+var laserDelayP1 = CURRENT_SETTINGS.laserInterval;
+var laserDelayP2 = CURRENT_SETTINGS.laserInterval;
 
 // Point Configuration
 const meteorScore = 100;
@@ -102,7 +85,7 @@ export class GameScene extends Phaser.Scene {
             {
                 key: "degredation",
                 frames: this.anims.generateFrameNumbers('asteroid', { start: 0, end: 1 }),
-                frameRate: asteroids_frame_rate
+                frameRate: CURRENT_SETTINGS.asteroids_frame_rate
             }
         );
 
@@ -110,7 +93,7 @@ export class GameScene extends Phaser.Scene {
             {
                 key: "explosion",
                 frames: this.anims.generateFrameNumbers('asteroid', { start: 2, end: 6 }),
-                frameRate: asteroids_frame_rate,
+                frameRate: CURRENT_SETTINGS.asteroids_frame_rate,
                 repeat: 0,
                 hideOnComplete: true
             }
@@ -119,16 +102,16 @@ export class GameScene extends Phaser.Scene {
         // Generate Meteors
         this.meteors = this.physics.add.group({
             key: 'asteroid',
-            repeat: num_asteroids
+            repeat: CURRENT_SETTINGS.num_asteroids
         });
 
         this.meteors.children.iterate(function (child) {
-            var rand_x = Phaser.Math.Between(400 - asteroids_x_coverage, 400 + asteroids_x_coverage);
+            var rand_x = Phaser.Math.Between(400 - CURRENT_SETTINGS.asteroids_x_coverage, 400 + CURRENT_SETTINGS.asteroids_x_coverage);
             var rand_y = Phaser.Math.Between(0, 600);
-            var rand_vx = Phaser.Math.FloatBetween(asteroids_x_vel_min, asteroids_x_vel_max)
-            var rand_vy = Phaser.Math.FloatBetween(asteroids_y_vel_min, asteroids_y_vel_max)
+            var rand_vx = Phaser.Math.FloatBetween(CURRENT_SETTINGS.asteroids_x_vel_min, CURRENT_SETTINGS.asteroids_x_vel_max)
+            var rand_vy = Phaser.Math.FloatBetween(CURRENT_SETTINGS.asteroids_y_vel_min, CURRENT_SETTINGS.asteroids_y_vel_max)
             child.setPosition(rand_x,rand_y);
-            child.setScale(Phaser.Math.FloatBetween(asteroids_scale_min,asteroids_scale_max))
+            child.setScale(Phaser.Math.FloatBetween(CURRENT_SETTINGS.asteroids_scale_min, CURRENT_SETTINGS.asteroids_scale_max))
             child.setVelocity(rand_vx, rand_vy);
             child.allowGravity = false;
             child.setSize(34.5,31.5)
@@ -172,12 +155,12 @@ export class GameScene extends Phaser.Scene {
         // Check for cursor keys/ship movement
         if (this.cursors.up.isDown)
             {
-                this.player.setVelocityY(-shipSpeed)    
+                this.player.setVelocityY(-CURRENT_SETTINGS.shipSpeed)    
             }
 
         else if (this.cursors.down.isDown)
             {
-                this.player.setVelocityY(shipSpeed);
+                this.player.setVelocityY(CURRENT_SETTINGS.shipSpeed);
         
             } 
 
@@ -200,12 +183,12 @@ export class GameScene extends Phaser.Scene {
     moveP2() {
         if (keyW.isDown) 
         {
-            this.player2.setVelocityY(-shipSpeed)
+            this.player2.setVelocityY(-CURRENT_SETTINGS.shipSpeed)
         }
 
         else if (keyS.isDown)
         {
-            this.player2.setVelocityY(shipSpeed);
+            this.player2.setVelocityY(CURRENT_SETTINGS.shipSpeed);
         }
 
         else
@@ -277,7 +260,7 @@ export class GameScene extends Phaser.Scene {
     }
 
     destroyMeteor(laser,meteor) {
-        let calculated_final_v = (laserSpeed+meteor.init_x_vel*asteroids_mass)/asteroids_mass
+        let calculated_final_v = (CURRENT_SETTINGS.laserSpeed + meteor.init_x_vel * CURRENT_SETTINGS.asteroids_mass) / CURRENT_SETTINGS.asteroids_mass
         meteor.body.setVelocityX(calculated_final_v)
         meteor.init_x_vel = calculated_final_v
         laser.disableBody(true, true);
@@ -300,6 +283,8 @@ export class GameScene extends Phaser.Scene {
             })
             meteor.play("degredation")
             meteor.setOffset(35.3,32.55)
+
+            
             //console.log(laser.player)
         }
     }
@@ -307,13 +292,13 @@ export class GameScene extends Phaser.Scene {
     shotMeteor(laser, meteor) {
         if (laser.player === 'P1') {
         this.destroyMeteor(laser, meteor);
-        scoreP1 += meteorScore;
+        scoreP1 += CURRENT_SETTINGS.meteorScore;
         this.scoreP1Text.setText(`SCORE: ${scoreP1}`)
         }
 
         else if (laser.player === 'P2') {
         this.destroyMeteor(laser, meteor);
-        scoreP2 += meteorScore;
+        scoreP2 += CURRENT_SETTINGS.meteorScore;
         this.scoreP2Text.setText(`SCORE: ${scoreP2}`)
         }
     }
@@ -326,7 +311,7 @@ export class GameScene extends Phaser.Scene {
 
         // If P1 shot laser, penalize P2
         if (laser.player === 'P1') {
-            scoreP2 -= hitPenalty;
+            scoreP2 -= CURRENT_SETTINGS.hitPenalty;
             if (scoreP2 <= 0) {
                 scoreP2 = 0;
                 this.scoreP2Text.setText(`SCORE: ${scoreP2}`)
@@ -336,7 +321,7 @@ export class GameScene extends Phaser.Scene {
 
         // If P2 shot laser, penalize P1
         if (laser.player === 'P2') {
-            scoreP1 -= hitPenalty;
+            scoreP1 -= CURRENT_SETTINGS.hitPenalty;
             if (scoreP1 <= 0) {
                 scoreP1 = 0;
                 this.scoreP1Text.setText(`SCORE: ${scoreP1}`)
@@ -392,7 +377,7 @@ class LaserGroup extends Phaser.Physics.Arcade.Group
         player;
         this.createMultiple({
             classType: Laser,
-            frameQuantity: laserMax,
+            frameQuantity: CURRENT_SETTINGS.laserMax,
             active: false,
             visible: false,
             key: 'laser'
@@ -425,17 +410,17 @@ class Laser extends Phaser.Physics.Arcade.Sprite {
         // If P2 fired, flip laser/velocity direction
         if (this.player === 'P2')
         {
-            this.body.velocity.x -= laserSpeed;
-            laserDelayP2 = laserInterval;
+            this.body.velocity.x -= CURRENT_SETTINGS.laserSpeed;
+            laserDelayP2 = CURRENT_SETTINGS.laserInterval;
         }
         else 
         {
-            this.body.velocity.x += laserSpeed;
-            laserDelayP1 = laserInterval;
+            this.body.velocity.x += CURRENT_SETTINGS.laserSpeed;
+            laserDelayP1 = CURRENT_SETTINGS.laserInterval;
         }
 
         // Lifespan of laser object before being recycled
-        this.setState(laserLifespan)
+        this.setState(CURRENT_SETTINGS.laserLifespan)
     }
 
     preUpdate(time, delta) {
