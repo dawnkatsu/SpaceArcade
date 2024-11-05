@@ -219,7 +219,7 @@ export class GameScene extends Phaser.Scene {
             return;
         }
         else {
-            this.fireLaser(this.laserGroupP2, this.player2.x, this.player2.y)
+            this.fireLaser(this.player2, this.laserGroupP2, this.player2.x, this.player2.y)
         }
 
         const controls = [CURRENT_SETTINGS.shipSpeed, -CURRENT_SETTINGS.shipSpeed];
