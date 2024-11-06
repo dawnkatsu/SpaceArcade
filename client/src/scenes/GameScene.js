@@ -8,10 +8,10 @@ import { CURRENT_SETTINGS } from '../settings.js';
 var gameTime;
 
 // Player 1 Variables
-var scoreP1 = 0;
+var scoreP1;
 
 // Player 2 Variables
-var scoreP2 = 0;
+var scoreP2;
 let keyW;
 let keyS;
 let keyJ;
@@ -27,7 +27,9 @@ export class GameScene extends Phaser.Scene {
     }
 
     init() {
-        this.isSinglePlayer = 0;
+        // Reset scores
+        scoreP1 = 0;
+        scoreP2 = 0;
     }
 
     preload() {
