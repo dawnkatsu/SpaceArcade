@@ -242,17 +242,20 @@ export class GameScene extends Phaser.Scene {
     }
 
     reset(player) {
+        // To randomize spawnPosition
+        //var spawnPosition = Phaser.Math.Between(100, 550);
+        var spawnPosition = 300;
         if (player.texture.key === 'spaceship') {
-            player.enableBody(true, 25, 300, true, true);
+            player.enableBody(true, 25, spawnPosition, true, true);
         }
 
         else if (player.texture.key === 'spaceship2') {
-            player.enableBody(true, this.scale.width - 25, 300, true, true);
+            player.enableBody(true, this.scale.width - 25, spawnPosition, true, true);
         }
      }
 
 
-    update(ts, dt) {
+    update(time, delta) {
         if (this.gameOver)
             {
                 this.scene.start('endGame', {scoreP1: scoreP1, scoreP2: scoreP2});
@@ -260,8 +263,8 @@ export class GameScene extends Phaser.Scene {
 
         
         // Check for laser firing; if delay has not been fulfilled, return to prevent rapid fire
-        laserDelayP1 -= dt;
-        laserDelayP2 -= dt;
+        laserDelayP1 -= delta;
+        laserDelayP2 -= delta;
         this.moveP1();
 
         if (CURRENT_SETTINGS.isSinglePlayer === true) {
@@ -315,7 +318,7 @@ export class GameScene extends Phaser.Scene {
         //this.gameOver = true;
     }
 
-    destroyMeteor(laser,meteor) {
+    destroyMeteor(laser, meteor) {
         let calculated_final_v = (CURRENT_SETTINGS.laserSpeed + meteor.init_x_vel * CURRENT_SETTINGS.asteroids_mass) / CURRENT_SETTINGS.asteroids_mass
         meteor.body.setVelocityX(calculated_final_v)
         meteor.init_x_vel = calculated_final_v

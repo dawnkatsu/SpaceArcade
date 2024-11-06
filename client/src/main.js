@@ -23,6 +23,5 @@ const config = {
         GameScene,
         EndScene,
     ]
-
 }
 const game = new Phaser.Game(config)
