@@ -6,6 +6,7 @@ export class Settings {
         // Game Settings
         this.gameDuration = 10000;
         this.spawnDelay = 2000;
+        this.endSceneDuration = 5000;
 
         // Ship Configuration
         this.shipSpeed = 150;

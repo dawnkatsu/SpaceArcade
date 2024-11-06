@@ -274,7 +274,7 @@ export class GameScene extends Phaser.Scene {
 
     hitByMeteor(player, meteor) {
         // Deduct P1 score for crashing into meteor
-        console.log(player.texture.key, ' hit!')
+        //console.log(player.texture.key, ' hit!')
         player.disableBody(true, true);
         this.sound.play('shipExplosion', {
             volume: .3,

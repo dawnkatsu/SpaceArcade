@@ -23,7 +23,8 @@ export class EndScene extends Phaser.Scene {
         image.setScale(scale).setScrollFactor(0)
 
         // Add scores
-        this.gameOverText = this.add.text(this.scale.width / 2, 150, `GAME OVER`, { fontSize: '30px'}).setOrigin(.5);
+        // this.gameOverText = this.add.text(this.scale.width / 2, 150, `GAME OVER`, { fontSize: '30px'}).setOrigin(.5);
+        this.displayWinner();
         this.scoreP1Text = this.add.text(this.scale.width / 2, 300, `P1 SCORE: ${this.scoreP1}`, { fontSize: '20px'}).setOrigin(.5);
         this.scoreP2Text = this.add.text(this.scale.width / 2, 350, `P2 SCORE: ${this.scoreP2}`, { fontSize: '20px'}).setOrigin(.5);
 
@@ -41,11 +42,24 @@ export class EndScene extends Phaser.Scene {
     }
 
     update() {
-        this.time.delayedCall(10000, this.backToMain, [], this);
+        this.time.delayedCall(CURRENT_SETTINGS.endSceneDuration, this.backToMain, [], this);
     }
 
+    displayWinner() {
+        if (this.scoreP1 > this.scoreP2) {
+            this.gameOverText = this.add.text(this.scale.width / 2, 150, `PLAYER 1 WINS!`, { fontSize: '30px'}).setOrigin(.5);
+        }
+
+        else if (this.scoreP2 > this.scoreP1) {
+            this.gameOverText = this.add.text(this.scale.width / 2, 150, `PLAYER 2 WINS!`, { fontSize: '30px'}).setOrigin(.5);
+        }
+        else {
+            this.gameOverText = this.add.text(this.scale.width / 2, 150, `IT'S A TIE!`, { fontSize: '30px'}).setOrigin(.5);
+
+        }
+    }
     backToMain() {
-        console.log('back to main menu...')
+        //console.log('back to main menu...')
         this.scene.start('bootGame');
     }
 }
