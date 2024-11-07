@@ -1,6 +1,7 @@
 import Phaser from '../lib/phaser.js'
 import { MenuScene } from './scenes/MenuScene.js'
 import { GameScene } from './scenes/GameScene.js'
+import { EndScene } from './scenes/endScene.js'
 
 const config = {
     width: 800,
@@ -20,7 +21,7 @@ const config = {
     scene: [
         MenuScene,
         GameScene,
+        EndScene,
     ]
-
 }
 const game = new Phaser.Game(config)

@@ -1,5 +1,9 @@
 import Phaser from '../../lib/phaser.js'
 import * as WebFontLoader from '../../lib/webfontloader.js'
+import { GameScene } from './GameScene.js'
+import { EndScene } from './endScene.js';
+import { CURRENT_SETTINGS } from '../settings.js';
+
 
 export class MenuScene extends Phaser.Scene {
     constructor() {
@@ -7,6 +11,7 @@ export class MenuScene extends Phaser.Scene {
     }
 
     preload() {
+        // Load assets
         this.load.image('space', "../assets/backgrounds/Space01.png")
         this.load.image('ship', "../assets/sprites/Spaceship01.png")
         this.load.audio('music', "../assets/sounds/menu.wav")
@@ -69,7 +74,8 @@ export class MenuScene extends Phaser.Scene {
         const pvc = this.add
         .text(w,400, "Player vs Computer", {fontSize: 15}).setOrigin(.5)
 
-        // Load Google font; wait for assets to load and set font
+        // Load Google font using WebFontLoader; 
+        // Wait for assets to load and set font/color
         WebFontLoader.default.load({
             google: {
                 families: ['Press Start 2P']
@@ -81,7 +87,7 @@ export class MenuScene extends Phaser.Scene {
             }
         })
 
-        // Add sprite to indicate menu selection
+        // Add sprite to indicate menu selection on hover
         let hoverSprite = this.add.image(100,100,'ship')
         hoverSprite.setScale(1);
         hoverSprite.setVisible(false);
@@ -100,6 +106,7 @@ export class MenuScene extends Phaser.Scene {
         })
 
         pvp.on('pointerdown', () => {
+            CURRENT_SETTINGS.isSinglePlayer = false;
             this.scene.start('playGame')
         })
 
@@ -117,6 +124,7 @@ export class MenuScene extends Phaser.Scene {
         })
 
         pvc.on('pointerdown', () => {
+            CURRENT_SETTINGS.isSinglePlayer = true;
             this.scene.start('playGame')
         })
     }
