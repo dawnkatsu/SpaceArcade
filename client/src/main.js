@@ -1,6 +1,7 @@
 import Phaser from '../lib/phaser.js'
 import { MenuScene } from './scenes/MenuScene.js'
 import { GameScene } from './scenes/GameScene.js'
+import { EndScene } from './scenes/endScene.js'
 import { WaitingRoomScene } from './scenes/WaitingRoomScene.js'
 import socketHandler from './socket_handler.js' 
 
@@ -26,8 +27,8 @@ const config = {
         MenuScene,
         WaitingRoomScene,
         GameScene,
+        EndScene,
     ]
-
 }
 // Create the game instance
 const game = new Phaser.Game(config)
