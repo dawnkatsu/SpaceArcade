@@ -1,7 +1,7 @@
 import Phaser from '../../lib/phaser.js'
 import * as WebFontLoader from '../../lib/webfontloader.js'
 import { MenuScene } from './MenuScene.js';
-import { EndScene } from './endScene.js';
+import { EndScene } from './EndScene.js';
 import { CURRENT_SETTINGS } from '../settings.js';
 
 // Game Timer Variable
