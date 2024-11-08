@@ -1,9 +1,5 @@
 import Phaser from '../../lib/phaser.js'
 import * as WebFontLoader from '../../lib/webfontloader.js'
-import { GameScene } from './GameScene.js'
-import { EndScene } from './endScene.js';
-import { CURRENT_SETTINGS } from '../settings.js';
-
 
 /**
  * MenuScene class represents the main menu of the game.
@@ -39,7 +35,6 @@ export class MenuScene extends Phaser.Scene {
      * Including images for background, ship sprite, and audio controls
      */
     preload() {
-        // Load assets
         this.load.image('space', "../assets/backgrounds/Space01.png")
         this.load.image('ship', "../assets/sprites/Spaceship01.png")
         this.load.audio('music', "../assets/sounds/menu.wav")
@@ -317,55 +312,6 @@ export class MenuScene extends Phaser.Scene {
                 families: [this.menuConfig.fontFamily]
             },
             active: () => {
-                title.setFontFamily('"Press Start 2P"').setColor('#ffffff');
-                pvp.setFontFamily('"Press Start 2P"').setColor('#ffffff');
-                pvc.setFontFamily('"Press Start 2P"').setColor('#ffffff');
-            }
-        })
-
-        // Add sprite to indicate menu selection on hover
-        let hoverSprite = this.add.image(100,100,'ship')
-        hoverSprite.setScale(1);
-        hoverSprite.setVisible(false);
-
-
-        // Add interactivity on hover for menu selection
-        // Player vs Player
-        pvp.setInteractive();
-        pvp.on('pointerover', () => {
-            hoverSprite.setVisible(true);
-            hoverSprite.x = pvp.x - pvp.width/2 - 40;
-            hoverSprite.y = pvp.y;
-        })
-        pvp.on('pointerout', () => {
-            hoverSprite.setVisible(false);
-        })
-
-        pvp.on('pointerdown', () => {
-            CURRENT_SETTINGS.isSinglePlayer = false;
-            this.scene.start('playGame')
-        })
-
-        // Player vs Computer
-        pvc.setInteractive();
-
-        pvc.on('pointerover', () => {
-            hoverSprite.setVisible(true);
-            hoverSprite.x = pvc.x - pvc.width/2 - 40;
-            hoverSprite.y = pvc.y;
-        })
-
-        pvc.on('pointerout', () => {
-            hoverSprite.setVisible(false);
-        })
-
-        pvc.on('pointerdown', () => {
-            CURRENT_SETTINGS.isSinglePlayer = true;
-            this.scene.start('playGame')
-        })
-    }
-
-    update() {       
                 console.log('Font loaded successfully');
                 const elements = [title, ...Object.values(this.menuItems), this.actionButton];
                 elements.forEach(element => {
