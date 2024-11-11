@@ -105,13 +105,13 @@ export class GameScene extends Phaser.Scene {
                 frames: this.anims.generateFrameNumbers('asteroid', { start: 2, end: 6 }),
                 frameRate: CURRENT_SETTINGS.asteroids_frame_rate,
                 repeat: 0,
-                hideOnComplete: true
+                // hideOnComplete: true
             }
         );
 
         this.anims.create(
             {
-                key: 'new',
+                key: 'init_asteroid',
                 frames: [ { key: 'asteroid', frame: 0 } ],
                 frameRate: CURRENT_SETTINGS.asteroids_frame_rate
             }
@@ -318,15 +318,14 @@ export class GameScene extends Phaser.Scene {
         meteor.body.setVelocityX(calculated_final_v)
         meteor.init_x_vel = calculated_final_v
         laser.disableBody(true, true);
-        if (meteor.anims.currentFrame != null && meteor.anims.currentAnim.key != "new") {
+        if (meteor.anims.currentAnim.key == "degredation") {
             meteor.play("explosion")
             this.sound.play('asteroidExplosion', {
                 volume: .4,
                 detune: -200
             })
             meteor.once('animationcomplete', () => {
-                meteor.x = -999
-                meteor.y= -999
+                meteor.setPosition(-999,-999)
             })
 
         }
@@ -442,10 +441,7 @@ export class GameScene extends Phaser.Scene {
                     else {
                         rand_y += ofst
                     }
-                    child.enableBody()
-                    child.play("new")
-                    child.anims.restart()
-                    console.log(child.anims.currentAnim)
+                    
                 }
 
                 var rand_x = Phaser.Math.Between(400 - CURRENT_SETTINGS.asteroids_x_coverage, 400 + CURRENT_SETTINGS.asteroids_x_coverage);
@@ -458,6 +454,9 @@ export class GameScene extends Phaser.Scene {
                 child.setSize(34.5,31.5)
                 child.setOffset(30,32.55)
                 child.init_x_vel = rand_vx
+                child.enableBody()
+                child.play("init_asteroid")
+                child.anims.restart()
                 
             }
         });
