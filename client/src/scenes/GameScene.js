@@ -109,26 +109,21 @@ export class GameScene extends Phaser.Scene {
             }
         );
 
+        this.anims.create(
+            {
+                key: 'new',
+                frames: [ { key: 'asteroid', frame: 0 } ],
+                frameRate: CURRENT_SETTINGS.asteroids_frame_rate
+            }
+        );
+
         // Generate Meteors
         this.meteors = this.physics.add.group({
             key: 'asteroid',
-            repeat: CURRENT_SETTINGS.num_asteroids
+            repeat: CURRENT_SETTINGS.num_asteroids - 1
         });
 
-        this.meteors.children.iterate(function (child) {
-            var rand_x = Phaser.Math.Between(400 - CURRENT_SETTINGS.asteroids_x_coverage, 400 + CURRENT_SETTINGS.asteroids_x_coverage);
-            var rand_y = Phaser.Math.Between(0, 600);
-            var rand_vx = Phaser.Math.FloatBetween(CURRENT_SETTINGS.asteroids_x_vel_min, CURRENT_SETTINGS.asteroids_x_vel_max)
-            var rand_vy = Phaser.Math.FloatBetween(CURRENT_SETTINGS.asteroids_y_vel_min, CURRENT_SETTINGS.asteroids_y_vel_max)
-            child.setPosition(rand_x,rand_y);
-            child.setScale(Phaser.Math.FloatBetween(CURRENT_SETTINGS.asteroids_scale_min, CURRENT_SETTINGS.asteroids_scale_max))
-            child.setVelocity(rand_vx, rand_vy);
-            child.allowGravity = false;
-            child.setSize(34.5,31.5)
-            child.setOffset(30,32.55)
-            child.init_x_vel = rand_vx
-
-        });
+        this.generateMeteors()
 
         // //  Input Events
         this.cursors = this.input.keyboard.createCursorKeys();
@@ -273,7 +268,7 @@ export class GameScene extends Phaser.Scene {
         else if (CURRENT_SETTINGS.isSinglePlayer === false) {
             this.moveP2();
         } 
-        
+        this.generateMeteors()
         this.endGame();
     }
 
@@ -323,15 +318,17 @@ export class GameScene extends Phaser.Scene {
         meteor.body.setVelocityX(calculated_final_v)
         meteor.init_x_vel = calculated_final_v
         laser.disableBody(true, true);
-        if (meteor.anims.currentFrame != null) {
+        if (meteor.anims.currentFrame != null && meteor.anims.currentAnim.key != "new") {
             meteor.play("explosion")
             this.sound.play('asteroidExplosion', {
                 volume: .4,
                 detune: -200
             })
             meteor.once('animationcomplete', () => {
-                meteor.destroy(true)
+                meteor.x = -999
+                meteor.y= -999
             })
+
         }
         else {
             this.sound.play('asteroidExplosion', {
@@ -426,7 +423,44 @@ export class GameScene extends Phaser.Scene {
             rate: 2,
             detune: -1000
         });
+    }
+
+    generateMeteors() {
+        this.meteors.children.iterate(function (child){
+            if (child.init_x_vel == null || (child.y < -30 || child.y  > 630 || child.x < -30 || child.x  > 830)) {
+                if (child.init_x_vel == null) {
+                    // Used when the meteors are initially generated at the beginning of the game
+                    var rand_y = Phaser.Math.Between(0, 600);
+                }
+                else {
+                    // Used when the meteors are out of bounds and needs to be regenerated
+                    var rand_y = 600 * Phaser.Math.Between(0, 1);
+                    var ofst = 20;
+                    if (rand_y == 0) {
+                        rand_y -= ofst
+                    }
+                    else {
+                        rand_y += ofst
+                    }
+                    child.enableBody()
+                    child.play("new")
+                    child.anims.restart()
+                    console.log(child.anims.currentAnim)
+                }
+
+                var rand_x = Phaser.Math.Between(400 - CURRENT_SETTINGS.asteroids_x_coverage, 400 + CURRENT_SETTINGS.asteroids_x_coverage);
+                var rand_vx = Phaser.Math.FloatBetween(CURRENT_SETTINGS.asteroids_x_vel_min, CURRENT_SETTINGS.asteroids_x_vel_max)
+                var rand_vy = Phaser.Math.FloatBetween(CURRENT_SETTINGS.asteroids_y_vel_min, CURRENT_SETTINGS.asteroids_y_vel_max)
+                child.setPosition(rand_x,rand_y);
+                child.setScale(Phaser.Math.FloatBetween(CURRENT_SETTINGS.asteroids_scale_min, CURRENT_SETTINGS.asteroids_scale_max))
+                child.setVelocity(rand_vx, rand_vy);
+                child.allowGravity = false;
+                child.setSize(34.5,31.5)
+                child.setOffset(30,32.55)
+                child.init_x_vel = rand_vx
                 
+            }
+        });
     }
 
     endGame() {
@@ -439,9 +473,6 @@ export class GameScene extends Phaser.Scene {
         }
     }
     
-
-    adjustVelocity() {
-    }
 }
 
 /* 
