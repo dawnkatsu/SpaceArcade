@@ -1,5 +1,6 @@
 import Phaser from '../../lib/phaser.js'
 import * as WebFontLoader from '../../lib/webfontloader.js'
+import { CURRENT_SETTINGS } from '../settings.js';
 
 /**
  * MenuScene class represents the main menu of the game.
@@ -280,6 +281,7 @@ export class MenuScene extends Phaser.Scene {
                 } else if (key === 'join') {
                     this.showJoinGameForm();
                 } else if (key === 'pvc') {
+                    CURRENT_SETTINGS.isSinglePlayer = true;
                     this.scene.start('playGame');
                 }
             });

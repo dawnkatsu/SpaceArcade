@@ -60,6 +60,7 @@ export class EndScene extends Phaser.Scene {
     }
     backToMain() {
         //console.log('back to main menu...')
+        CURRENT_SETTINGS.isSinglePlayer = false;
         this.scene.start('bootGame');
     }
 }
