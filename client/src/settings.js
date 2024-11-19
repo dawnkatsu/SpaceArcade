@@ -4,12 +4,12 @@ export class Settings {
         this.isSinglePlayer = 0;
 
         // Game Settings
-        this.gameDuration = 25000;
+        this.gameDuration = 25000000000000000000;
         this.spawnDelay = 2000; 
         this.endSceneDuration = 5000;
 
         // Ship Configuration
-        this.shipSpeed = 150;
+        this.shipSpeed = 4;
         this.laserMax = 30;
         this.laserInterval = 450;
         this.laserSpeed = 200;
