@@ -9,9 +9,11 @@ var gameTime;
 
 // Player 1 Variables
 var scoreP1;
+var p1_command;
 
 // Player 2 Variables
 var scoreP2;
+var p2_command;
 let keyW;
 let keyS;
 let keyJ;
@@ -24,12 +26,15 @@ var laserDelayP2 = CURRENT_SETTINGS.laserInterval;
 export class GameScene extends Phaser.Scene {
     constructor() {
         super('playGame');
+        this.socketListeners = []; 
     }
 
     init() {
         // Reset scores
         scoreP1 = 0;
         scoreP2 = 0;
+        p1_command = 0;
+        p2_command = 0;
     }
 
     preload() {
@@ -55,7 +60,7 @@ export class GameScene extends Phaser.Scene {
         let scaleY = this.cameras.main.height / image.height
         let scale = Math.max(scaleX, scaleY)
         image.setScale(scale).setScrollFactor(0)
-
+        
         // Create laser group
         this.laserGroupP1 = new LaserGroup(this, this.player);
         this.laserGroupP2 = new LaserGroup(this, this.player2);
@@ -144,9 +149,13 @@ export class GameScene extends Phaser.Scene {
             }
         })
 
+        // Setup socket listeners
+        this.setupSocketListeners();
+
+
         // // Hit by meteor. Game over
-        this.physics.add.collider(this.player, this.meteors, this.hitByMeteor, null, this);
-        this.physics.add.collider(this.player2, this.meteors, this.hitByMeteor, null, this);
+        // this.physics.add.collider(this.player, this.meteors, this.hitByMeteor, null, this);
+        // this.physics.add.collider(this.player2, this.meteors, this.hitByMeteor, null, this);
 
         // Hit by enemy laser
         this.physics.add.collider(this.player, this.laserGroupP2, this.hitByLaser, null, this);
@@ -161,13 +170,27 @@ export class GameScene extends Phaser.Scene {
         // Check for cursor keys/ship movement
         if (this.cursors.up.isDown)
             {
-                this.player.setVelocityY(-CURRENT_SETTINGS.shipSpeed)    
+                var curr_pos = this.player.y;
+                p1_command = p1_command + 1;
+                //client prediction
+                // this.player.setPosition(this.player.x,curr_pos-CURRENT_SETTINGS.shipSpeed)
+
+                //server verification
+                this.game.socketHandler.sendPlayerMove(curr_pos-CURRENT_SETTINGS.shipSpeed, p1_command)
+                
+
             }
 
         else if (this.cursors.down.isDown)
             {
-                this.player.setVelocityY(CURRENT_SETTINGS.shipSpeed);
-        
+
+                var curr_pos = this.player.y;
+                p1_command = p1_command + 1
+                //client prediction
+                // this.player.setPosition(this.player.x,curr_pos+CURRENT_SETTINGS.shipSpeed)
+
+                //server verification
+                this.game.socketHandler.sendPlayerMove(curr_pos+CURRENT_SETTINGS.shipSpeed, p1_command) 
             } 
 
         else
@@ -189,12 +212,24 @@ export class GameScene extends Phaser.Scene {
     moveP2() {
         if (keyW.isDown) 
         {
-            this.player2.setVelocityY(-CURRENT_SETTINGS.shipSpeed)
+            var curr_pos = this.player2.y;
+            p2_command = p2_command + 1;
+            //client prediction
+            // this.player.setPosition(this.player.x,curr_pos-CURRENT_SETTINGS.shipSpeed)
+
+            //server verification
+            this.game.socketHandler.sendPlayerMove(curr_pos-CURRENT_SETTINGS.shipSpeed, p2_command)
         }
 
         else if (keyS.isDown)
         {
-            this.player2.setVelocityY(CURRENT_SETTINGS.shipSpeed);
+            var curr_pos = this.player2.y;
+            p2_command = p2_command + 1
+            //client prediction
+            // this.player.setPosition(this.player.x,curr_pos+CURRENT_SETTINGS.shipSpeed)
+
+            //server verification
+            this.game.socketHandler.sendPlayerMove(curr_pos+CURRENT_SETTINGS.shipSpeed, p2_command) 
         }
 
         else
@@ -460,6 +495,55 @@ export class GameScene extends Phaser.Scene {
                 
             }
         });
+    }
+
+    setupSocketListeners() {
+
+        // Setup new listeners
+        const addListener = (event, callback) => {
+            this.game.socketHandler.on(event, callback);
+            this.socketListeners.push({ event, callback });
+        };
+
+        // addListener('gameStateUpdate', (data) => {
+        //     // console.log(data['command'])
+        //     // console.log(p1_command)
+        //     // console.log(data['y'])
+        //     this.player.setPosition(this.player.x,data['player1'])
+        //     this.player2.setPosition(this.player2.x, data['player2'])
+        //     // console.log(this.player.y)
+
+        //     // if (data['command'] == p1_command){
+        //     //     if (this.player.y == data['y']) {
+        //     //         console.log("Verified Movements")
+        //     //     } 
+        //     // }
+        //     // else {
+        //     //     console.log("Unverified Movements")
+        //     // }
+        // });
+
+
+        addListener('verifiedMove', (data) => {
+            // console.log(data['command'])
+            // console.log(p1_command)
+            // console.log(data['y'])
+            this.player.setPosition(this.player.x,data['player'])
+            this.player2.setPosition(this.player2.x, data['enemy'])
+            // console.log(this.player.y)
+
+            // if (data['command'] == p1_command){
+            //     if (this.player.y == data['y']) {
+            //         console.log("Verified Movements")
+            //     } 
+            // }
+            // else {
+            //     console.log("Unverified Movements")
+            // }
+        });
+
+
+
     }
 
     endGame() {

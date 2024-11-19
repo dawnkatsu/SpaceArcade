@@ -22,7 +22,8 @@ export class SocketHandler {
         this.gameId = null;
         this.playerId = null;
         this.eventListeners = {};
-
+        this.command = 0;
+        this.command_prev = 0;
         this.setupSocketListeners();
     }
 
@@ -58,8 +59,8 @@ export class SocketHandler {
             this.triggerEvent('gameStart');
         });
 
-        this.socket.on('game_state', (state) => {
-            this.triggerEvent('gameStateUpdate', state);
+        this.socket.on('game_state', (data) => {
+            this.triggerEvent('gameStateUpdate', data);
         });
 
         this.socket.on('game_over', (data) => {
@@ -81,6 +82,11 @@ export class SocketHandler {
             console.error('Join error', data);
             this.triggerEvent('joinError', data);
         });
+
+        this.socket.on('player_moved', (data) => {
+            this.triggerEvent('verifiedMove', data);
+        });
+
     }
 
     /**
@@ -104,8 +110,8 @@ export class SocketHandler {
      * Sends the player's new vertical position to the server.
      * @param {number} y - The new vertical position of the player.
      */
-    sendPlayerMove(y) {
-        this.socket.emit('player_move', y);
+    sendPlayerMove(y,command) {
+        this.socket.emit('player_move', y,command);
     }
 
     /**
