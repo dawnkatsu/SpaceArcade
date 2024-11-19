@@ -505,45 +505,10 @@ export class GameScene extends Phaser.Scene {
             this.socketListeners.push({ event, callback });
         };
 
-        // addListener('gameStateUpdate', (data) => {
-        //     // console.log(data['command'])
-        //     // console.log(p1_command)
-        //     // console.log(data['y'])
-        //     this.player.setPosition(this.player.x,data['player1'])
-        //     this.player2.setPosition(this.player2.x, data['player2'])
-        //     // console.log(this.player.y)
-
-        //     // if (data['command'] == p1_command){
-        //     //     if (this.player.y == data['y']) {
-        //     //         console.log("Verified Movements")
-        //     //     } 
-        //     // }
-        //     // else {
-        //     //     console.log("Unverified Movements")
-        //     // }
-        // });
-
-
-        addListener('verifiedMove', (data) => {
-            // console.log(data['command'])
-            // console.log(p1_command)
-            // console.log(data['y'])
-            this.player.setPosition(this.player.x,data['player'])
-            this.player2.setPosition(this.player2.x, data['enemy'])
-            // console.log(this.player.y)
-
-            // if (data['command'] == p1_command){
-            //     if (this.player.y == data['y']) {
-            //         console.log("Verified Movements")
-            //     } 
-            // }
-            // else {
-            //     console.log("Unverified Movements")
-            // }
+        addListener('gameStateUpdate', (data) => {
+            this.player.setPosition(this.player.x,data['player1'])
+            this.player2.setPosition(this.player2.x, data['player2'])
         });
-
-
-
     }
 
     endGame() {

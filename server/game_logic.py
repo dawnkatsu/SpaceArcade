@@ -30,10 +30,10 @@ class GameState:
         return {'player1': self.players[player_id1]['position'], 'player2': self.players[player_id2]['position']}
 
 
-        return {
-            'players': self.players,
-            'game_started': self.game_started
-        }
+        # return {
+        #     'players': self.players,
+        #     'game_started': self.game_started
+        # }
 
     def handle_player_disconnect(self, player_id):
         """Handle a player disconnection"""

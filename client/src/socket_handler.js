@@ -83,10 +83,6 @@ export class SocketHandler {
             this.triggerEvent('joinError', data);
         });
 
-        this.socket.on('player_moved', (data) => {
-            this.triggerEvent('verifiedMove', data);
-        });
-
     }
 
     /**
