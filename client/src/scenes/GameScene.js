@@ -132,6 +132,7 @@ export class GameScene extends Phaser.Scene {
 
         // //  Input Events
         this.cursors = this.input.keyboard.createCursorKeys();
+        this.cursors2 = this.input.keyboard.createCursorKeys();
 
         // //  The score and game timer
         this.scoreP1Text = this.add.text(this.scale.width * .2, 20, `SCORE: ${scoreP1}`, { fontSize: '12px'});
@@ -176,7 +177,8 @@ export class GameScene extends Phaser.Scene {
                 // this.player.setPosition(this.player.x,curr_pos-CURRENT_SETTINGS.shipSpeed)
 
                 //server verification
-                this.game.socketHandler.sendPlayerMove(curr_pos-CURRENT_SETTINGS.shipSpeed, p1_command)
+                console.log('P1 up')
+                this.game.socketHandler.sendPlayerMove(curr_pos-CURRENT_SETTINGS.shipSpeed)
                 
 
             }
@@ -190,7 +192,8 @@ export class GameScene extends Phaser.Scene {
                 // this.player.setPosition(this.player.x,curr_pos+CURRENT_SETTINGS.shipSpeed)
 
                 //server verification
-                this.game.socketHandler.sendPlayerMove(curr_pos+CURRENT_SETTINGS.shipSpeed, p1_command) 
+                console.log('P1 down')
+                this.game.socketHandler.sendPlayerMove(curr_pos+CURRENT_SETTINGS.shipSpeed) 
             } 
 
         else
@@ -212,24 +215,26 @@ export class GameScene extends Phaser.Scene {
     moveP2() {
         if (keyW.isDown) 
         {
-            var curr_pos = this.player2.y;
+            var P2_pos = this.player2.y;
             p2_command = p2_command + 1;
             //client prediction
             // this.player.setPosition(this.player.x,curr_pos-CURRENT_SETTINGS.shipSpeed)
 
             //server verification
-            this.game.socketHandler.sendPlayerMove(curr_pos-CURRENT_SETTINGS.shipSpeed, p2_command)
+            console.log('P2 up');
+            this.game.socketHandler.sendPlayerMove(P2_pos-CURRENT_SETTINGS.shipSpeed)
         }
 
         else if (keyS.isDown)
         {
-            var curr_pos = this.player2.y;
+            var P2_pos = this.player2.y;
             p2_command = p2_command + 1
             //client prediction
             // this.player.setPosition(this.player.x,curr_pos+CURRENT_SETTINGS.shipSpeed)
 
             //server verification
-            this.game.socketHandler.sendPlayerMove(curr_pos+CURRENT_SETTINGS.shipSpeed, p2_command) 
+            console.log('P2 down');
+            this.game.socketHandler.sendPlayerMove(P2_pos+CURRENT_SETTINGS.shipSpeed) 
         }
 
         else
@@ -296,13 +301,15 @@ export class GameScene extends Phaser.Scene {
         laserDelayP1 -= delta;
         laserDelayP2 -= delta;
         this.moveP1();
+        this.moveP2();
 
-        if (CURRENT_SETTINGS.isSinglePlayer === true) {
-            this.aiPlayer();
-        }
-        else if (CURRENT_SETTINGS.isSinglePlayer === false) {
-            this.moveP2();
-        } 
+        // if (CURRENT_SETTINGS.isSinglePlayer === true) {
+        //     this.aiPlayer();
+        // }
+        // else if (CURRENT_SETTINGS.isSinglePlayer === false) {
+        //     this.moveP2();
+        // } 
+
         this.generateMeteors()
         this.endGame();
     }

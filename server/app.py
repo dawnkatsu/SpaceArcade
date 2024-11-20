@@ -200,7 +200,7 @@ def handle_cancel_game(game_id):
         print(f"Game cancelled: {game_id}")
 
 @socketio.on('player_move')
-def handle_player_move(y,command):
+def handle_player_move(y):
     """
     Handle a player movement update.
     
@@ -214,7 +214,7 @@ def handle_player_move(y,command):
         pos_data = games[game_id].update_player_position(request.sid, y)
         data = dict()
         data['game_id'] = game_id
-        data['command'] = command
+        #data['command'] = command
         data['y'] = y
         #emit('player_moved', pos_data)
 

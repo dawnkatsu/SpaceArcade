@@ -18,6 +18,10 @@ class GameState:
         if player_id in self.players:
             del self.players[player_id]
 
+    def get_player_side(self, player_id):
+        """Gets player's side"""
+        return self.players[player_id]['side']
+
     def get_state(self):
         """Get the current game state"""
 
@@ -47,9 +51,9 @@ class GameState:
 
         for player_id_key in self.players:
             if player_id_key != player_id:
-                enemy_id = player_id_key
+                player_id2 = player_id_key
         
-        return {'player': self.players[player_id]['position'], 'enemy': self.players[enemy_id]['position']}
+        return {'player1': self.players[player_id]['position'], 'player2': self.players[player_id2]['position']}
 
 
     def player_shoot(self, player_id):

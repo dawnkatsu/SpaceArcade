@@ -106,8 +106,8 @@ export class SocketHandler {
      * Sends the player's new vertical position to the server.
      * @param {number} y - The new vertical position of the player.
      */
-    sendPlayerMove(y,command) {
-        this.socket.emit('player_move', y,command);
+    sendPlayerMove(y) {
+        this.socket.emit('player_move', y);
     }
 
     /**

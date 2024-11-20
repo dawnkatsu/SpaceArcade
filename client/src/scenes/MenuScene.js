@@ -41,7 +41,7 @@ export class MenuScene extends Phaser.Scene {
         this.load.audio('music', "../assets/sounds/menu.wav")
         this.load.image('sound-on', "../assets/sprites/Speaker-0.png")
         this.load.image('sound-off', "../assets/sprites/Speaker-Crossed.png")
-        console.log('MenuScene: preload completed');        
+        //console.log('MenuScene: preload completed');        
     }
 
     /**
@@ -49,7 +49,7 @@ export class MenuScene extends Phaser.Scene {
      * @returns {Phaser.GameObjects.Image} The background image object
      */
     createBackground() {
-        console.log('MenuScene: creating background');
+        // console.log('MenuScene: creating background');
         let image = this.add.image(this.cameras.main.width / 2, this.cameras.main.height / 2, 'space')
         let scaleX = this.cameras.main.width / image.width
         let scaleY = this.cameras.main.height / image.height
@@ -118,12 +118,12 @@ export class MenuScene extends Phaser.Scene {
         const menuItem = this.add.text(x, y, text, {
             fontSize: this.menuConfig.fontSize.menuItem
         }).setOrigin(0.5)
-        console.log(`Created menu item: ${text} at ${x},${y}`);
+        // console.log(`Created menu item: ${text} at ${x},${y}`);
         return menuItem
     }
 
     createInputField(x, y, placeholder) {
-        console.log(`Creating input field at ${x},${y} with placeholder: ${placeholder}`);
+        // console.log(`Creating input field at ${x},${y} with placeholder: ${placeholder}`);
         const inputField = document.createElement('input');
         inputField.style.fontFamily = this.menuConfig.fontFamily;
         inputField.style.fontSize = `${this.menuConfig.fontSize.input}px`;
@@ -136,7 +136,7 @@ export class MenuScene extends Phaser.Scene {
         inputField.placeholder = placeholder;
 
         const domElement = this.add.dom(x, y, inputField);
-        console.log('DOM element created:', domElement);
+        // console.log('DOM element created:', domElement);
         return domElement;
     }
 
@@ -207,7 +207,7 @@ export class MenuScene extends Phaser.Scene {
      * Creates and initializes all menu elements
      */
     create() {
-        console.log('MenuScene: create started');
+        // console.log('MenuScene: create started');
         const centerX = this.scale.width / 2;
 
         this.createBackground();
@@ -221,7 +221,7 @@ export class MenuScene extends Phaser.Scene {
             "SPACE ARCADE",
             { fontSize: this.menuConfig.fontSize.title }
         ).setOrigin(0.5)
-        console.log('MenuScene: title created');
+        // console.log('MenuScene: title created');
 
         // Create menu items
         this.menuItems = {
@@ -257,7 +257,7 @@ export class MenuScene extends Phaser.Scene {
 
         // Hover sprite
         const hoverSprite = this.add.image(100, 100, 'ship').setScale(1).setVisible(false)
-        console.log('Created hover sprite');
+        // console.log('Created hover sprite');
 
         // Setup menu item interactivity
         Object.entries(this.menuItems).forEach(([key, item]) => {
@@ -275,7 +275,7 @@ export class MenuScene extends Phaser.Scene {
             });
 
             item.on('pointerdown', () => {
-                console.log(`Clicked ${key}`);
+                // console.log(`Clicked ${key}`);
                 if (key === 'create') {
                     this.showCreateGameForm();
                 } else if (key === 'join') {
@@ -314,7 +314,7 @@ export class MenuScene extends Phaser.Scene {
                 families: [this.menuConfig.fontFamily]
             },
             active: () => {
-                console.log('Font loaded successfully');
+                // console.log('Font loaded successfully');
                 const elements = [title, ...Object.values(this.menuItems), this.actionButton];
                 elements.forEach(element => {
                     element.setFontFamily(`"${this.menuConfig.fontFamily}"`);
