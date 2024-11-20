@@ -3,7 +3,7 @@ import { MenuScene } from './scenes/MenuScene.js'
 import { GameScene } from './scenes/GameScene.js'
 import { EndScene } from './scenes/EndScene.js'
 import { WaitingRoomScene } from './scenes/WaitingRoomScene.js'
-import socketHandler from './socket_handler.js' 
+import socketHandler from './SocketHandler.js' 
 
 const config = {
     width: 800,
