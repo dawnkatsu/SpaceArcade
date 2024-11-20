@@ -36,4 +36,4 @@ export class Settings {
     }
 }
 
-export const CURRENT_SETTINGS = new Settings();
+module.exports = { Settings };

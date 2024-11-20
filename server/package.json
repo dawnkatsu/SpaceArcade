@@ -1,0 +1,21 @@
+{
+    "name": "space-battle-game",
+    "version": "1.0.0",
+    "description": "Multiplayer space battle game",
+    "main": "server/server.js",
+    "scripts": {
+      "start": "node server/server.js",
+      "dev": "nodemon server/server.js"
+    },
+    "dependencies": {
+      "express": "^4.17.1",
+      "socket.io": "^4.4.1",
+      "phaser": "^3.60.0"
+    },
+    "devDependencies": {
+      "nodemon": "^2.0.15"
+    },
+    "engines": {
+      "node": ">=14.0.0"
+    }
+  }

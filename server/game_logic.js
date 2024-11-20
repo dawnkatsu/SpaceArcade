@@ -467,4 +467,4 @@ class GameLogic {
     }
 }
 
-export default GameLogic;
+module.exports = GameLogic;
