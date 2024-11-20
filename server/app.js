@@ -185,6 +185,16 @@ io.on('connection', (socket) => {
             games.get(gameId).playerShoot(socket.id);
         }
     });
+
+    socket.on('meteor_respawn', (meteorId) => {
+        const gameId = socket.data.gameId;
+        if (games.has(gameId)) {
+            const game = games.get(gameId);
+            game.respawnMeteor(meteorId);
+            // Broadcast new meteor positions to all players in the game
+            io.to(gameId).emit('game_state', game.getState());
+        }
+    });
 });
 
 // Game loop function
