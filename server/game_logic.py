@@ -18,12 +18,26 @@ class GameState:
         if player_id in self.players:
             del self.players[player_id]
 
+    def get_player_side(self, player_id):
+        """Gets player's side"""
+        return self.players[player_id]['side']
+
     def get_state(self):
         """Get the current game state"""
-        return {
-            'players': self.players,
-            'game_started': self.game_started
-        }
+
+        for player_id_key in self.players:
+            if self.players[player_id_key]['side'] == 'left':
+                player_id1 = player_id_key
+            if self.players[player_id_key]['side'] == 'right':
+                player_id2 = player_id_key
+        
+        return {'player1': self.players[player_id1]['position'], 'player2': self.players[player_id2]['position']}
+
+
+        # return {
+        #     'players': self.players,
+        #     'game_started': self.game_started
+        # }
 
     def handle_player_disconnect(self, player_id):
         """Handle a player disconnection"""
@@ -34,6 +48,13 @@ class GameState:
         """Update a player's position"""
         if player_id in self.players:
             self.players[player_id]['position'] = y
+
+        for player_id_key in self.players:
+            if player_id_key != player_id:
+                player_id2 = player_id_key
+        
+        return {'player1': self.players[player_id]['position'], 'player2': self.players[player_id2]['position']}
+
 
     def player_shoot(self, player_id):
         """Handle player shoot action"""

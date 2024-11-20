@@ -211,7 +211,12 @@ def handle_player_move(y):
     
     game_id = session.get('game_id')
     if game_id in games:
-        games[game_id].update_player_position(request.sid, y)
+        pos_data = games[game_id].update_player_position(request.sid, y)
+        data = dict()
+        data['game_id'] = game_id
+        #data['command'] = command
+        data['y'] = y
+        #emit('player_moved', pos_data)
 
 @socketio.on('player_shoot')
 def handle_player_shoot():
@@ -228,10 +233,13 @@ def game_loop(game_id):
     
     :param game_id: Unique identifier for the game
     """
+
     while game_id in games and len(games[game_id].players) == 2:
         # Use functions from server/game_logic.py to update game state, check collisions, etc.
-        emit('game_state', games[game_id].get_state(), room=game_id)
+        data = games[game_id].get_state()
+        socketio.emit('game_state', data)
         socketio.sleep(1/60)  # 60 FPS
+
 
 if __name__ == '__main__':
     print("Server starting... Access the game at http://localhost:5000")
