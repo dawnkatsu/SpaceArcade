@@ -128,8 +128,6 @@ export class GameScene extends Phaser.Scene {
             repeat: CURRENT_SETTINGS.num_asteroids - 1
         });
 
-        this.generateMeteors()
-
         // //  Input Events
         this.cursors = this.input.keyboard.createCursorKeys();
         this.cursors2 = this.input.keyboard.createCursorKeys();
@@ -310,7 +308,6 @@ export class GameScene extends Phaser.Scene {
         //     this.moveP2();
         // } 
 
-        this.generateMeteors()
         this.endGame();
     }
 
@@ -466,44 +463,6 @@ export class GameScene extends Phaser.Scene {
         });
     }
 
-    generateMeteors() {
-        this.meteors.children.iterate(function (child){
-            if (child.init_x_vel == null || (child.y < -30 || child.y  > 630 || child.x < -30 || child.x  > 830)) {
-                if (child.init_x_vel == null) {
-                    // Used when the meteors are initially generated at the beginning of the game
-                    var rand_y = Phaser.Math.Between(0, 600);
-                }
-                else {
-                    // Used when the meteors are out of bounds and needs to be regenerated
-                    var rand_y = 600 * Phaser.Math.Between(0, 1);
-                    var ofst = 20;
-                    if (rand_y == 0) {
-                        rand_y -= ofst
-                    }
-                    else {
-                        rand_y += ofst
-                    }
-                    
-                }
-
-                var rand_x = Phaser.Math.Between(400 - CURRENT_SETTINGS.asteroids_x_coverage, 400 + CURRENT_SETTINGS.asteroids_x_coverage);
-                var rand_vx = Phaser.Math.FloatBetween(CURRENT_SETTINGS.asteroids_x_vel_min, CURRENT_SETTINGS.asteroids_x_vel_max)
-                var rand_vy = Phaser.Math.FloatBetween(CURRENT_SETTINGS.asteroids_y_vel_min, CURRENT_SETTINGS.asteroids_y_vel_max)
-                child.setPosition(rand_x,rand_y);
-                child.setScale(Phaser.Math.FloatBetween(CURRENT_SETTINGS.asteroids_scale_min, CURRENT_SETTINGS.asteroids_scale_max))
-                child.setVelocity(rand_vx, rand_vy);
-                child.allowGravity = false;
-                child.setSize(34.5,31.5)
-                child.setOffset(30,32.55)
-                child.init_x_vel = rand_vx
-                child.enableBody()
-                child.play("init_asteroid")
-                child.anims.restart()
-                
-            }
-        });
-    }
-
     setupSocketListeners() {
 
         // Setup new listeners
@@ -515,6 +474,33 @@ export class GameScene extends Phaser.Scene {
         addListener('gameStateUpdate', (data) => {
             this.player.setPosition(this.player.x,data['player1'])
             this.player2.setPosition(this.player2.x, data['player2'])
+
+             // Initialize or update meteors from server data
+             this.meteors.children.iterate((meteor, index) => {
+                const serverMeteor = data.meteors[index];
+                if (serverMeteor) {
+                    if (!meteor.initialized) {
+                        // Initial setup of meteor
+                        meteor.setPosition(serverMeteor.x, serverMeteor.y);
+                        meteor.setVelocity(serverMeteor.velocityX, serverMeteor.velocityY);
+                        meteor.setScale(serverMeteor.scale);
+                        meteor.init_x_vel = serverMeteor.init_x_vel;
+                        meteor.id = serverMeteor.id;
+                        meteor.initialized = true;
+                        meteor.allowGravity = false;
+                        meteor.setSize(34.5, 31.5);
+                        meteor.setOffset(30, 32.55);
+                        meteor.play("init_asteroid");
+                    } else if (meteor.y < -30 || meteor.y > 630 || meteor.x < -30 || meteor.x > 830) {
+                        // Respawn meteor with new server position
+                        meteor.setPosition(serverMeteor.x, serverMeteor.y);
+                        meteor.setVelocity(serverMeteor.velocityX, serverMeteor.velocityY);
+                        meteor.setScale(serverMeteor.scale);
+                        meteor.init_x_vel = serverMeteor.init_x_vel;
+                        meteor.play("init_asteroid");
+                    }
+                }
+             });
         });
     }
 

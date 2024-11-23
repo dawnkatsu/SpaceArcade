@@ -7,3 +7,4 @@ __pycache__
 client/types
 assets/original-sources
 server/tempCodeRunnerFile.py
+node_modules/
