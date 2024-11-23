@@ -88,13 +88,6 @@ export class GameScene extends Phaser.Scene {
             delay: CURRENT_SETTINGS.gameDuration,
         })
 
-        // Spawn Timer
-        // this.spawnTimer = this.time.addEvent({
-        //     delay: 5000,
-        //     callback: 
-        // })
-
-
         //  Animations
         this.anims.create(
             {
@@ -152,9 +145,9 @@ export class GameScene extends Phaser.Scene {
         this.setupSocketListeners();
 
 
-        // // Hit by meteor. Game over
-        // this.physics.add.collider(this.player, this.meteors, this.hitByMeteor, null, this);
-        // this.physics.add.collider(this.player2, this.meteors, this.hitByMeteor, null, this);
+        // Hit by meteor. Score decreases and respawn
+        this.physics.add.collider(this.player, this.meteors, this.hitByMeteor, null, this);
+        this.physics.add.collider(this.player2, this.meteors, this.hitByMeteor, null, this);
 
         // Hit by enemy laser
         this.physics.add.collider(this.player, this.laserGroupP2, this.hitByLaser, null, this);
@@ -166,6 +159,8 @@ export class GameScene extends Phaser.Scene {
         }
 
     moveP1() {
+        if (this.player.isRespawning) return;
+
         // Check for cursor keys/ship movement
         if (this.cursors.up.isDown)
             {
@@ -211,6 +206,8 @@ export class GameScene extends Phaser.Scene {
     }
 
     moveP2() {
+        if (this.player2.isRespawning) return;
+
         if (keyW.isDown) 
         {
             var P2_pos = this.player2.y;
@@ -280,10 +277,12 @@ export class GameScene extends Phaser.Scene {
         var spawnPosition = 300;
         if (player.texture.key === 'spaceship') {
             player.enableBody(true, 25, spawnPosition, true, true);
+            player.body.enable = true;
         }
 
         else if (player.texture.key === 'spaceship2') {
             player.enableBody(true, this.scale.width - 25, spawnPosition, true, true);
+            player.body.enable = true;
         }
      }
 
@@ -308,48 +307,39 @@ export class GameScene extends Phaser.Scene {
         //     this.moveP2();
         // } 
 
+        // Check for out-of-bounds meteors
+        this.meteors.children.iterate((meteor) => {
+            if (meteor.y < -30 || meteor.y > 630 || meteor.x < -30 || meteor.x > 830) {
+                // Request new spawn position from server
+                this.game.socketHandler.socket.emit('meteor_respawn', meteor.id);
+            }
+        });
         this.endGame();
     }
 
     hitByMeteor(player, meteor) {
-        // Deduct P1 score for crashing into meteor
-        //console.log(player.texture.key, ' hit!')
+        // Prevent collision if player is respawning
+        if (player.isRespawning || !meteor.id) {
+            return;
+        }
+        // Apply immediate visual/audio feedback
         player.disableBody(true, true);
         this.sound.play('shipExplosion', {
             volume: .3,
             detune: 0
         })
-        this.time.delayedCall(CURRENT_SETTINGS.spawnDelay, this.reset, [player], this);
-        if (player.texture.key === 'spaceship') {
-            //player.disableBody(true, true);
-            //this.time.delayedCall(5000, this.reset(player), [], this);
-            //console.log(spawnTimerP1.getRemaining());
-            scoreP1 -= CURRENT_SETTINGS.hitByMeteorPenalty;
-            if (scoreP1 <= 0) {
-                scoreP1 = 0;
-            }
-            this.scoreP1Text.setText(`SCORE: ${scoreP1}`)
-        }
-
-        // Deduct P2 score for crashing into meteor
-        if (player.texture.key === 'spaceship2') {
-            //player.disableBody(true, true);
-            //this.time.delayedCall(5000, this.reset(player), [], this);
-            scoreP2 -= CURRENT_SETTINGS.hitByMeteorPenalty;
-            if (scoreP2 <= 0) {
-                scoreP2 = 0;
-            }
-            this.scoreP2Text.setText(`SCORE: ${scoreP2}`)
-
-        }
 
         // Ship and meteor explodes
         meteor.play("explosion")
-        // player.play("explosion")
 
-        //this.physics.pause();
-        //this.player.setTint(0xff0000);
-        //this.gameOver = true;
+        // Send collision event to server
+        this.game.socketHandler.sendMeteorCollision(meteor.id, player.texture.key);
+
+        // Handle respawn
+        this.time.delayedCall(CURRENT_SETTINGS.spawnDelay, () => {
+            player.isRespawning = false;
+            this.reset(player);
+        }, [], this);
     }
 
     destroyMeteor(laser, meteor) {
@@ -472,8 +462,13 @@ export class GameScene extends Phaser.Scene {
         };
 
         addListener('gameStateUpdate', (data) => {
-            this.player.setPosition(this.player.x,data['player1'])
-            this.player2.setPosition(this.player2.x, data['player2'])
+            // Only update positions if not respawning
+            if (!this.player.isRespawning) {
+                this.player.setPosition(this.player.x, data['player1']);
+            }
+            if (!this.player2.isRespawning) {
+                this.player2.setPosition(this.player2.x, data['player2']);
+            }
 
              // Initialize or update meteors from server data
              this.meteors.children.iterate((meteor, index) => {

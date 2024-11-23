@@ -195,6 +195,21 @@ io.on('connection', (socket) => {
             io.to(gameId).emit('game_state', game.getState());
         }
     });
+
+    socket.on('meteor_collision', (data) => {
+        const gameId = socket.data.gameId;
+        if (!gameId || !games.has(gameId)) return;
+
+        const game = games.get(gameId);
+        const result = game.handleMeteorCollision(socket.id, data);
+        
+        if (result.processed) {
+            io.to(gameId).emit('score_update', {
+                scoreP1: result.scoreP1,
+                scoreP2: result.scoreP2
+            });
+        }
+    });
 });
 
 // Game loop function

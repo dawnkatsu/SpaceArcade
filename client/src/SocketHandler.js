@@ -63,6 +63,10 @@ export class SocketHandler {
             this.triggerEvent('gameStateUpdate', data);
         });
 
+        this.socket.on('score_update', (data) => {
+            this.triggerEvent('scoreUpdate', data);
+        });
+
         this.socket.on('game_over', (data) => {
             console.log('Game over', data);
             this.triggerEvent('gameOver', data);
@@ -115,6 +119,13 @@ export class SocketHandler {
      */
     sendPlayerShoot() {
         this.socket.emit('player_shoot');
+    }
+
+    sendMeteorCollision(meteorId, playerShip) {
+        this.socket.emit('meteor_collision', {
+            meteor_id: meteorId,
+            player_ship: playerShip  // 'spaceship' or 'spaceship2'
+        });
     }
 
     /**
