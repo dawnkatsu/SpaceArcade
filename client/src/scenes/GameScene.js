@@ -308,13 +308,6 @@ export class GameScene extends Phaser.Scene {
         //     this.moveP2();
         // } 
 
-        // Check for out-of-bounds meteors
-        this.meteors.children.iterate((meteor) => {
-            if (meteor.y < -30 || meteor.y > 630 || meteor.x < -30 || meteor.x > 830) {
-                // Request new spawn position from server
-                this.game.socketHandler.socket.emit('meteor_respawn', meteor.id);
-            }
-        });
         this.endGame();
     }
 
