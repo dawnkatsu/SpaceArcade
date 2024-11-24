@@ -21,6 +21,7 @@ export class SocketHandler {
         this.socket = io();
         this.gameId = null;
         this.playerId = null;
+        this.playerSide = null; 
         this.eventListeners = {};
         this.command = 0;
         this.command_prev = 0;
@@ -45,12 +46,14 @@ export class SocketHandler {
         this.socket.on('game_created', (data) => {
             console.log('Game created', data);
             this.gameId = data.game_id;
+            this.playerSide = data.player_side;
             this.triggerEvent('gameCreated', data);
         });
 
         this.socket.on('game_joined', (data) => {
             console.log('Game joined', data);
             this.gameId = data.game_id;
+            this.playerSide = data.player_side;
             this.triggerEvent('gameJoined', data);
         });
 
