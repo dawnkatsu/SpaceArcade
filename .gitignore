@@ -6,3 +6,5 @@ __pycache__
 .vscode
 client/types
 assets/original-sources
+node_modules
+server/tempCodeRunnerFile.py

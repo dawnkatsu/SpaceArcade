@@ -279,7 +279,6 @@ export class GameScene extends Phaser.Scene {
 
     hitByMeteor(player, meteor) {
         // Deduct P1 score for crashing into meteor
-        //console.log(player.texture.key, ' hit!')
         player.disableBody(true, true);
         this.sound.play('shipExplosion', {
             volume: .3,
@@ -287,9 +286,6 @@ export class GameScene extends Phaser.Scene {
         })
         this.time.delayedCall(CURRENT_SETTINGS.spawnDelay, this.reset, [player], this);
         if (player.texture.key === 'spaceship') {
-            //player.disableBody(true, true);
-            //this.time.delayedCall(5000, this.reset(player), [], this);
-            //console.log(spawnTimerP1.getRemaining());
             scoreP1 -= CURRENT_SETTINGS.hitByMeteorPenalty;
             if (scoreP1 <= 0) {
                 scoreP1 = 0;
@@ -299,8 +295,6 @@ export class GameScene extends Phaser.Scene {
 
         // Deduct P2 score for crashing into meteor
         if (player.texture.key === 'spaceship2') {
-            //player.disableBody(true, true);
-            //this.time.delayedCall(5000, this.reset(player), [], this);
             scoreP2 -= CURRENT_SETTINGS.hitByMeteorPenalty;
             if (scoreP2 <= 0) {
                 scoreP2 = 0;
@@ -311,11 +305,6 @@ export class GameScene extends Phaser.Scene {
 
         // Ship and meteor explodes
         meteor.play("explosion")
-        // player.play("explosion")
-
-        //this.physics.pause();
-        //this.player.setTint(0xff0000);
-        //this.gameOver = true;
     }
 
     destroyMeteor(laser, meteor) {
