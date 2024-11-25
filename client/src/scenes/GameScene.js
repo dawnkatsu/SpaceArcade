@@ -150,7 +150,9 @@ export class GameScene extends Phaser.Scene {
         this.physics.add.collider(this.player2, this.laserGroupP1, this.hitByLaser, null, this);
         
         // Shoot meteor collision/physics
-        this.physics.add.collider(this.laserGroupP1, this.meteors, this.shotMeteor, null, this);
+        //this.physics.add.collider(this.laserGroupP1, this.meteors, this.shotMeteor, null, this);
+        this.physics.add.collider(this.laserGroupP1, this.meteors, this.sendDestroyMeteor, null, this);
+
         this.physics.add.collider(this.laserGroupP2, this.meteors, this.shotMeteor, null, this);
         }
 
@@ -283,11 +285,16 @@ export class GameScene extends Phaser.Scene {
         }, [], this);
     }
 
+    sendDestroyMeteor(laser, meteor) {
+        this.game.socketHandler.sendLaserMeteorCollision(laser, meteor);
+    }
+
     destroyMeteor(laser, meteor) {
         let calculated_final_v = (CURRENT_SETTINGS.laserSpeed + meteor.init_x_vel * CURRENT_SETTINGS.asteroids_mass) / CURRENT_SETTINGS.asteroids_mass
         meteor.body.setVelocityX(calculated_final_v)
         meteor.init_x_vel = calculated_final_v
         laser.disableBody(true, true);
+        
         if (meteor.anims.currentAnim.key == "degredation") {
             meteor.play("explosion")
             this.sound.play('asteroidExplosion', {
@@ -443,18 +450,19 @@ export class GameScene extends Phaser.Scene {
         });
 
         addListener('shootLaser', (data) => {
-            console.log('fireLaser triggered');
-            console.log('data: ', data);
             if (data.side === 'left') {
-                console.log('P1 trying to shoot')
                 this.fireLaser(this.player, this.laserGroupP1, this.player.x, data.y)
             }
 
             else if (data.side === 'right') {
-                console.log('P2 trying to shoot')
                 this.fireLaser(this.player2, this.laserGroupP2, this.player2.x, data.y)
             }
         });
+
+        addListener('laser_meteor_collision', (data) =>
+        {
+            this.destroyMeteor(data.laser, data.meteor);
+        })
     }
 
     endGame() {

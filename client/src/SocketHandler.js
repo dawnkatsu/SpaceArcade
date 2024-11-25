@@ -70,6 +70,10 @@ export class SocketHandler {
             this.triggerEvent('shootLaser', data);
         });
 
+        this.socket.on('laser_meteor_collision', (data) => {
+            this.triggerEvent('laser_meteor_collision', data);
+        })
+
         this.socket.on('score_update', (data) => {
             this.triggerEvent('scoreUpdate', data);
         });
@@ -126,6 +130,13 @@ export class SocketHandler {
      */
     sendPlayerShoot() {
         this.socket.emit('player_shoot');
+    }
+
+    sendLaserMeteorCollision(laser, meteor) {
+        this.socket.emit('laser_meteor_collision', {
+            laser: laser,
+            meteor: meteor
+        })
     }
 
     sendMeteorCollision(meteorId, playerShip) {
