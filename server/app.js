@@ -179,10 +179,13 @@ io.on('connection', (socket) => {
         }
     });
 
-    socket.on('player_shoot', () => {
+    socket.on('player_shoot', (y) => {
         const gameId = socket.data.gameId;
         if (games.has(gameId)) {
-            games.get(gameId).playerShoot(socket.id);
+            const data = games.get(gameId).playerShoot(socket.id);
+            console.log(data);
+            console.log(data.side);
+            io.to(gameId).emit('player_shoot', {side: data.side, y: data.y})
         }
     });
 
@@ -193,6 +196,21 @@ io.on('connection', (socket) => {
             game.respawnMeteor(meteorId);
             // Broadcast new meteor positions to all players in the game
             io.to(gameId).emit('game_state', game.getState());
+        }
+    });
+
+    socket.on('meteor_collision', (data) => {
+        const gameId = socket.data.gameId;
+        if (!gameId || !games.has(gameId)) return;
+
+        const game = games.get(gameId);
+        const result = game.handleMeteorCollision(socket.id, data);
+        
+        if (result.processed) {
+            io.to(gameId).emit('score_update', {
+                scoreP1: result.scoreP1,
+                scoreP2: result.scoreP2
+            });
         }
     });
 });

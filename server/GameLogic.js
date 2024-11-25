@@ -10,9 +10,11 @@ const { CURRENT_SETTINGS } = require('./settings');
 
 class GameState {
     constructor() {
-        this.players = new Map(); // Using Map instead of object for better key-value management
+        this.players = new Map();
         this.gameStarted = false;
         this.meteors = [];
+        this.processedMeteorCollisions = new Set();
+        this.respawningPlayers = new Set(); // Track respawning players
 
         // Initialize meteors
         for (let i = 0; i < CURRENT_SETTINGS.num_asteroids; i++) {
@@ -31,7 +33,8 @@ class GameState {
         this.players.set(playerId, {
             username: username,
             side: side,
-            position: 300  // Middle of screen (assuming 600 height)
+            position: 300,  // Middle of screen (assuming 600 height)
+            score: 0       // Initialize score to 0
         });
         return side;
     }
@@ -51,6 +54,24 @@ class GameState {
          * @returns {string} - The side ('left' or 'right') assigned to the player
          */
         return this.players.get(playerId).side;
+    }
+
+    getPlayerScore(side) {
+        for (const [_, player] of this.players) {
+            if (player.side === side) {
+                return player.score;  
+            }
+        }
+        return 0;  // Only returns 0 if no player found with that side
+    }
+
+    updatePlayerScore(side, change) {
+        for (const [_, player] of this.players) {
+            if (player.side === side) {
+                player.score = Math.max(0, player.score + change);
+                return;
+            }
+        }
     }
 
     generateNewMeteor(isOutOfBounds = false) {
@@ -83,10 +104,48 @@ class GameState {
 
     // Called when client reports a meteor is out of bounds
     respawnMeteor(meteorId) {
+        this.processedMeteorCollisions.delete(meteorId);
         const index = this.meteors.findIndex(m => m.id === meteorId);
         if (index !== -1) {
             this.meteors[index] = this.generateNewMeteor(true);
         }
+    }
+
+    handleMeteorCollision(playerId, data) {
+        if (this.processedMeteorCollisions.has(data.meteor_id)) {
+            return {
+                scoreP1: this.getPlayerScore('left'),
+                scoreP2: this.getPlayerScore('right'),
+                processed: false
+            };
+        }
+
+        // Start respawn state for the hit player
+        this.respawningPlayers.add(playerId);
+
+        // Reset player position to middle
+        if (this.players.has(playerId)) {
+            this.players.get(playerId).position = 300; // Reset to middle of screen
+        }
+        
+        // Set timeout to clear respawn state after delay
+        setTimeout(() => {
+            this.respawningPlayers.delete(playerId);
+        }, CURRENT_SETTINGS.spawnDelay);
+
+        this.processedMeteorCollisions.add(data.meteor_id);
+
+        // Get the affected player's side
+        const side = data.player_ship === 'spaceship' ? 'left' : 'right';
+        
+        // Update score
+        this.updatePlayerScore(side, -CURRENT_SETTINGS.hitByMeteorPenalty);
+
+        return {
+            scoreP1: this.getPlayerScore('left'),
+            scoreP2: this.getPlayerScore('right'),
+            processed: true
+        };
     }
 
     getState() {
@@ -109,7 +168,8 @@ class GameState {
         return {
             player1: this.players.get(player1).position,
             player2: this.players.get(player2).position,
-            meteors: this.meteors  // Initial spawn positions and propertie
+            meteors: this.meteors,  // Initial spawn positions and properties
+            respawningPlayers: Array.from(this.respawningPlayers)
         };
     }
 
@@ -129,6 +189,11 @@ class GameState {
          * @param {number} y - New vertical position
          * @returns {Object} - Updated positions of both players
          */
+        // Don't update position if player is respawning
+        if (this.respawningPlayers.has(playerId)) {
+            return null;
+        }
+
         if (this.players.has(playerId)) {
             this.players.get(playerId).position = y;
         }
@@ -144,7 +209,7 @@ class GameState {
 
         return {
             player1: this.players.get(playerId).position,
-            player2: this.players.get(otherPlayerId).position
+            player2: otherPlayerId ? this.players.get(otherPlayerId).position : null
         };
     }
 
@@ -154,6 +219,12 @@ class GameState {
          * @param {string} playerId - Unique identifier for the player who shot
          */
         // Placeholder for shooting mechanism
+        if (this.players.has(playerId)) {
+            return {
+                side: this.players.get(playerId).side,
+                y: this.players.get(playerId).position
+            }
+        }
     }
 }
 

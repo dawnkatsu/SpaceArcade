@@ -63,6 +63,10 @@ export class SocketHandler {
             this.triggerEvent('gameStateUpdate', data);
         });
 
+        this.socket.on('player_shoot', (data) => {
+            this.triggerEvent('shootLaser', data);
+        });
+
         this.socket.on('game_over', (data) => {
             console.log('Game over', data);
             this.triggerEvent('gameOver', data);
