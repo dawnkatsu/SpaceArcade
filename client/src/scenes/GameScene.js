@@ -151,11 +151,7 @@ export class GameScene extends Phaser.Scene {
         
         // Shoot meteor collision/physics
         this.physics.add.collider(this.laserGroupP1, this.meteors, this.shotMeteor, null, this);
-        this.physics.add.collider(this.laserGroupP2, this.meteors, this.shotMeteor, null, this);
-        
-        this.physics.add.collider(this.laserGroupP1, this.meteors, this.sendDestroyMeteor, null, this);
-
-        // this.physics.add.collider(this.laserGroupP2, this.meteors, this.shotMeteor, null, this);
+        this.physics.add.collider(this.laserGroupP2, this.meteors, this.shotMeteor, null, this);        
         }
 
     moveP1() {
@@ -179,7 +175,6 @@ export class GameScene extends Phaser.Scene {
 
         if (this.cursors.space.isDown && laserDelayP1 <= 0) {
             //this.fireLaser(this.player, this.laserGroupP1, this.player.x, this.player.y)
-            console.log
             this.game.socketHandler.sendPlayerShoot(this.player.y)
         }
     }
@@ -323,6 +318,7 @@ export class GameScene extends Phaser.Scene {
     }
 
     shotMeteor(laser, meteor) {
+        this.sendDestroyMeteor(laser, meteor);
         if (laser.player === 'P1') {
         this.destroyMeteor(laser, meteor);
         scoreP1 += CURRENT_SETTINGS.meteorScore;
@@ -339,13 +335,19 @@ export class GameScene extends Phaser.Scene {
     hitByLaser(player, laser) {
         player.body.setVelocityX(0);
         
+        player.isRespawning = true;
         player.disableBody(true, true);
 
         // Disable laser object on impact
         laser.disableBody(true, true);
 
 
-        this.time.delayedCall(CURRENT_SETTINGS.spawnDelay, this.reset, [player], this);
+        // this.time.delayedCall(CURRENT_SETTINGS.spawnDelay, this.reset, [player], this);
+        // Handle respawn
+        this.time.delayedCall(CURRENT_SETTINGS.spawnDelay, () => {
+            player.isRespawning = false;
+            player.enableBody(true, player.x, 300, true, true);
+        }, [], this);
 
         // If P1 shot laser, penalize P2
         if (laser.player === 'P1') {
@@ -388,7 +390,7 @@ export class GameScene extends Phaser.Scene {
         }
 
         // If player is inactive, return
-        if (!player.active) {
+        if (player.isRespawning) {
             return;
         }
 
