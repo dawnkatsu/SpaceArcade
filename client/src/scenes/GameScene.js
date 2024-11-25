@@ -405,10 +405,10 @@ export class GameScene extends Phaser.Scene {
             const isP2Respawning = data.respawningPlayers.includes(this.game.socketHandler.playerId) && this.game.socketHandler.playerSide === 'right';
 
             if (!isP1Respawning) {
-                this.player.setPosition(this.player.x, data['player1']);
+                this.player.setPosition(this.player.x, data.player1);
             }
             if (!isP2Respawning) {
-                this.player2.setPosition(this.player2.x, data['player2']);
+                this.player2.setPosition(this.player2.x, data.player2);
             }
 
              // Initialize or update meteors from server data
