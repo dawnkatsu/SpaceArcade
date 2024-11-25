@@ -150,10 +150,12 @@ export class GameScene extends Phaser.Scene {
         this.physics.add.collider(this.player2, this.laserGroupP1, this.hitByLaser, null, this);
         
         // Shoot meteor collision/physics
-        //this.physics.add.collider(this.laserGroupP1, this.meteors, this.shotMeteor, null, this);
+        this.physics.add.collider(this.laserGroupP1, this.meteors, this.shotMeteor, null, this);
+        this.physics.add.collider(this.laserGroupP2, this.meteors, this.shotMeteor, null, this);
+        
         this.physics.add.collider(this.laserGroupP1, this.meteors, this.sendDestroyMeteor, null, this);
 
-        this.physics.add.collider(this.laserGroupP2, this.meteors, this.shotMeteor, null, this);
+        // this.physics.add.collider(this.laserGroupP2, this.meteors, this.shotMeteor, null, this);
         }
 
     moveP1() {

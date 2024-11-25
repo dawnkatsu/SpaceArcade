@@ -183,8 +183,6 @@ io.on('connection', (socket) => {
         const gameId = socket.data.gameId;
         if (games.has(gameId)) {
             const data = games.get(gameId).playerShoot(socket.id);
-            console.log(data);
-            console.log(data.side);
             io.to(gameId).emit('player_shoot', {side: data.side, y: data.y})
         }
     });
