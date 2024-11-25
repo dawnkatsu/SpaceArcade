@@ -111,6 +111,22 @@ class GameState {
         }
     }
 
+    // handleLaserShipCollision(playerId) {
+    //     // Start respawn state for the hit player
+    //     this.respawningPlayers.add(playerId);
+
+    //     // Reset player position to middle
+    //     if (this.players.has(playerId)) {
+    //         this.players.get(playerId).position = 300; // Reset to middle of screen
+    //     }
+        
+    //     // Set timeout to clear respawn state after delay
+    //     setTimeout(() => {
+    //         this.respawningPlayers.delete(playerId);
+    //     }, CURRENT_SETTINGS.spawnDelay);
+
+    // }
+
     handleMeteorCollision(playerId, data) {
         if (this.processedMeteorCollisions.has(data.meteor_id)) {
             return {

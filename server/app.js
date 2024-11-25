@@ -187,6 +187,13 @@ io.on('connection', (socket) => {
         }
     });
 
+    socket.on('laser_ship_collision', (data) => {
+        const gameId = socket.data.gameId;
+        if (games.has(gameId)) {
+            game.handleLaserShipCollision(socket.id)
+        }
+    })
+
     socket.on('laser_meteor_collision', (data) => {
         const gameId = socket.data.gameId;
         if (games.has(gameId)) {

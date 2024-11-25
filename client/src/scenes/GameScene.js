@@ -341,6 +341,9 @@ export class GameScene extends Phaser.Scene {
         // Disable laser object on impact
         laser.disableBody(true, true);
 
+        // Send collision to server
+        // this.game.socketHandler.sendLaserShipCollision(player.texture.key);
+
 
         // this.time.delayedCall(CURRENT_SETTINGS.spawnDelay, this.reset, [player], this);
         // Handle respawn

@@ -139,6 +139,12 @@ export class SocketHandler {
         })
     }
 
+    sendLaserShipCollision(playerShip) {
+        this.socket.emit('laser_ship_collision', {
+            player_ship: playerShip
+        })
+    }
+
     sendMeteorCollision(meteorId, playerShip) {
         this.socket.emit('meteor_collision', {
             meteor_id: meteorId,
