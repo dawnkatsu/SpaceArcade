@@ -122,6 +122,11 @@ class GameState {
 
         // Start respawn state for the hit player
         this.respawningPlayers.add(playerId);
+
+        // Reset player position to middle
+        if (this.players.has(playerId)) {
+            this.players.get(playerId).position = 300; // Reset to middle of screen
+        }
         
         // Set timeout to clear respawn state after delay
         setTimeout(() => {
@@ -163,7 +168,8 @@ class GameState {
         return {
             player1: this.players.get(player1).position,
             player2: this.players.get(player2).position,
-            meteors: this.meteors  // Initial spawn positions and propertie
+            meteors: this.meteors,  // Initial spawn positions and properties
+            respawningPlayers: Array.from(this.respawningPlayers)
         };
     }
 
@@ -185,7 +191,7 @@ class GameState {
          */
         // Don't update position if player is respawning
         if (this.respawningPlayers.has(playerId)) {
-            return;
+            return null;
         }
 
         if (this.players.has(playerId)) {
@@ -203,7 +209,7 @@ class GameState {
 
         return {
             player1: this.players.get(playerId).position,
-            player2: this.players.get(otherPlayerId).position
+            player2: otherPlayerId ? this.players.get(otherPlayerId).position : null
         };
     }
 

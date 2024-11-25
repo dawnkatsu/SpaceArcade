@@ -224,21 +224,6 @@ export class GameScene extends Phaser.Scene {
         };
     }
 
-    reset(player) {
-        // To randomize spawnPosition
-        //var spawnPosition = Phaser.Math.Between(100, 550);
-        var spawnPosition = 300;
-        if (player.texture.key === 'spaceship') {
-            player.enableBody(true, 25, spawnPosition, true, true);
-            player.body.enable = true;
-        }
-
-        else if (player.texture.key === 'spaceship2') {
-            player.enableBody(true, this.scale.width - 25, spawnPosition, true, true);
-            player.body.enable = true;
-        }
-     }
-
     update(time, delta) {
         if (this.gameOver)
             {
@@ -274,14 +259,15 @@ export class GameScene extends Phaser.Scene {
         if (player.isRespawning || !meteor.id) {
             return;
         }
-        // Apply immediate visual/audio feedback
+        // Apply immediate visual/audio 
+        player.isRespawning = true;
         player.disableBody(true, true);
         this.sound.play('shipExplosion', {
             volume: .3,
             detune: 0
         })
 
-        // Ship and meteor explodes
+        // Meteor explodes
         meteor.play("explosion")
 
         // Send collision event to server
@@ -290,7 +276,7 @@ export class GameScene extends Phaser.Scene {
         // Handle respawn
         this.time.delayedCall(CURRENT_SETTINGS.spawnDelay, () => {
             player.isRespawning = false;
-            this.reset(player);
+            player.enableBody(true, player.x, 300, true, true);
         }, [], this);
     }
 
@@ -415,10 +401,13 @@ export class GameScene extends Phaser.Scene {
 
         addListener('gameStateUpdate', (data) => {
             // Only update positions if not respawning
-            if (!this.player.isRespawning) {
+            const isP1Respawning = data.respawningPlayers.includes(this.game.socketHandler.playerId) && this.game.socketHandler.playerSide === 'left';
+            const isP2Respawning = data.respawningPlayers.includes(this.game.socketHandler.playerId) && this.game.socketHandler.playerSide === 'right';
+
+            if (!isP1Respawning) {
                 this.player.setPosition(this.player.x, data['player1']);
             }
-            if (!this.player2.isRespawning) {
+            if (!isP2Respawning) {
                 this.player2.setPosition(this.player2.x, data['player2']);
             }
 
