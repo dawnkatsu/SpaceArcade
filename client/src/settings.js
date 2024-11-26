@@ -23,7 +23,7 @@ export class Settings {
         this.asteroids_x_coverage = 200;
         this.asteroids_scale_min = 1;
         this.asteroids_scale_max = 1.5;
-        this.num_asteroids = 1;
+        this.num_asteroids = 3;
         this.asteroids_frame_rate = 30;
         this.asteroids_mass = 10000;
 

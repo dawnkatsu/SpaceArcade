@@ -282,7 +282,7 @@ export class MenuScene extends Phaser.Scene {
                     this.showJoinGameForm();
                 } else if (key === 'pvc') {
                     CURRENT_SETTINGS.isSinglePlayer = true;
-                    this.scene.start('playGame');
+                    this.scene.start('playGameAI');
                 }
             });
         })
