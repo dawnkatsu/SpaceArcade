@@ -21,6 +21,7 @@ export class SocketHandler {
         this.socket = io();
         this.gameId = null;
         this.playerId = null;
+        this.playerSide = null; 
         this.eventListeners = {};
         this.command = 0;
         this.command_prev = 0;
@@ -45,12 +46,14 @@ export class SocketHandler {
         this.socket.on('game_created', (data) => {
             console.log('Game created', data);
             this.gameId = data.game_id;
+            this.playerSide = data.player_side;
             this.triggerEvent('gameCreated', data);
         });
 
         this.socket.on('game_joined', (data) => {
             console.log('Game joined', data);
             this.gameId = data.game_id;
+            this.playerSide = data.player_side;
             this.triggerEvent('gameJoined', data);
         });
 
@@ -61,6 +64,18 @@ export class SocketHandler {
 
         this.socket.on('game_state', (data) => {
             this.triggerEvent('gameStateUpdate', data);
+        });
+
+        this.socket.on('player_shoot', (data) => {
+            this.triggerEvent('shootLaser', data);
+        });
+
+        this.socket.on('laser_meteor_collision', (data) => {
+            this.triggerEvent('laser_meteor_collision', data);
+        })
+
+        this.socket.on('score_update', (data) => {
+            this.triggerEvent('scoreUpdate', data);
         });
 
         this.socket.on('game_over', (data) => {
@@ -115,6 +130,26 @@ export class SocketHandler {
      */
     sendPlayerShoot() {
         this.socket.emit('player_shoot');
+    }
+
+    sendLaserMeteorCollision(laser, meteor) {
+        this.socket.emit('laser_meteor_collision', {
+            laser: laser,
+            meteor: meteor
+        })
+    }
+
+    sendLaserShipCollision(playerShip) {
+        this.socket.emit('laser_ship_collision', {
+            player_ship: playerShip
+        })
+    }
+
+    sendMeteorCollision(meteorId, playerShip) {
+        this.socket.emit('meteor_collision', {
+            meteor_id: meteorId,
+            player_ship: playerShip  // 'spaceship' or 'spaceship2'
+        });
     }
 
     /**
