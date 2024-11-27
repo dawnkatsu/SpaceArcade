@@ -318,7 +318,8 @@ export class GameScene extends Phaser.Scene {
     }
 
     shotMeteor(laser, meteor) {
-        //this.sendDestroyMeteor(laser, meteor);
+        this.sendDestroyMeteor(laser, meteor);
+
         if (laser.player === 'P1') {
         this.destroyMeteor(laser, meteor);
         this.game.socketHandler.updateScore('left', CURRENT_SETTINGS.meteorScore);
@@ -362,7 +363,7 @@ export class GameScene extends Phaser.Scene {
                 scoreP2 = 0;
                 //this.scoreP2Text.setText(`SCORE: ${scoreP2}`)
             }
-            this.scoreP2Text.setText(`SCORE: ${scoreP2}`)
+            //this.scoreP2Text.setText(`SCORE: ${scoreP2}`)
         }
 
         // If P2 shot laser, penalize P1
@@ -374,7 +375,7 @@ export class GameScene extends Phaser.Scene {
                 scoreP1 = 0;
                 //this.scoreP1Text.setText(`SCORE: ${scoreP1}`)
             }
-            this.scoreP1Text.setText(`SCORE: ${scoreP1}`)
+            //this.scoreP1Text.setText(`SCORE: ${scoreP1}`)
         }
     }
 

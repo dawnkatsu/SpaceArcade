@@ -208,10 +208,6 @@ io.on('connection', (socket) => {
         const gameId = socket.data.gameId;
         if (games.has(gameId)) {
             games.get(gameId).updatePlayerScore(data.side, data.change)
-            io.to(gameId).emit('score_update', {
-                scoreP1: games.get(gameId).getPlayerScore('left'),
-                scoreP2: games.get(gameId).getPlayerScore('right')
-            })
         }
     });
 
