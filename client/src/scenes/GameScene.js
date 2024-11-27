@@ -318,7 +318,7 @@ export class GameScene extends Phaser.Scene {
     }
 
     shotMeteor(laser, meteor) {
-        this.sendDestroyMeteor(laser, meteor);
+        //this.sendDestroyMeteor(laser, meteor);
         if (laser.player === 'P1') {
         this.destroyMeteor(laser, meteor);
         this.game.socketHandler.updateScore('left', CURRENT_SETTINGS.meteorScore);
