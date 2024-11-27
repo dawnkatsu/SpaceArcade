@@ -4,7 +4,7 @@ export class Settings {
         this.isSinglePlayer = 0;
 
         // Game Settings
-        this.gameDuration = 25000000000000000000;
+        this.gameDuration = 60000;
         this.spawnDelay = 2000; 
         this.endSceneDuration = 5000;
 
@@ -23,7 +23,7 @@ export class Settings {
         this.asteroids_x_coverage = 200;
         this.asteroids_scale_min = 1;
         this.asteroids_scale_max = 1.5;
-        this.num_asteroids = 1;
+        this.num_asteroids = 20;
         this.asteroids_frame_rate = 30;
         this.asteroids_mass = 10000;
 
