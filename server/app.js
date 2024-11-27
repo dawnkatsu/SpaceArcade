@@ -190,7 +190,7 @@ io.on('connection', (socket) => {
     socket.on('laser_ship_collision', (data) => {
         const gameId = socket.data.gameId;
         if (games.has(gameId)) {
-            game.handleLaserShipCollision(socket.id)
+            games.get(gameId).handleLaserShipCollision(socket.id)
         }
     })
 
@@ -201,6 +201,17 @@ io.on('connection', (socket) => {
                 {
                 laser: data.laser, 
                 meteor: data.meteor});
+        }
+    });
+
+    socket.on('updateScore', (data) => {
+        const gameId = socket.data.gameId;
+        if (games.has(gameId)) {
+            games.get(gameId).updatePlayerScore(data.side, data.change)
+            io.to(gameId).emit('score_update', {
+                scoreP1: games.get(gameId).getPlayerScore('left'),
+                scoreP2: games.get(gameId).getPlayerScore('right')
+            })
         }
     });
 
