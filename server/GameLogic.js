@@ -184,6 +184,8 @@ class GameState {
         return {
             player1: this.players.get(player1).position,
             player2: this.players.get(player2).position,
+            player1Score: this.players.get(player1).score,
+            player2Score: this.players.get(player2).score,
             meteors: this.meteors,  // Initial spawn positions and properties
             respawningPlayers: Array.from(this.respawningPlayers)
         };

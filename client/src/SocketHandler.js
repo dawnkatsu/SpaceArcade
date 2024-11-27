@@ -139,6 +139,10 @@ export class SocketHandler {
         })
     }
 
+    updateScore(side, change) {
+        this.socket.emit('updateScore', {side: side, change: change})
+    }
+
     sendLaserShipCollision(playerShip) {
         this.socket.emit('laser_ship_collision', {
             player_ship: playerShip

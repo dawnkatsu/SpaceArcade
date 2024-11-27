@@ -321,14 +321,16 @@ export class GameScene extends Phaser.Scene {
         this.sendDestroyMeteor(laser, meteor);
         if (laser.player === 'P1') {
         this.destroyMeteor(laser, meteor);
-        scoreP1 += CURRENT_SETTINGS.meteorScore;
-        this.scoreP1Text.setText(`SCORE: ${scoreP1}`)
+        this.game.socketHandler.updateScore('left', CURRENT_SETTINGS.meteorScore);
+        //scoreP1 += CURRENT_SETTINGS.meteorScore;
+        //this.scoreP1Text.setText(`SCORE: ${scoreP1}`)
         }
 
         else if (laser.player === 'P2') {
         this.destroyMeteor(laser, meteor);
-        scoreP2 += CURRENT_SETTINGS.meteorScore;
-        this.scoreP2Text.setText(`SCORE: ${scoreP2}`)
+        this.game.socketHandler.updateScore('right', CURRENT_SETTINGS.meteorScore);
+        //scoreP2 += CURRENT_SETTINGS.meteorScore;
+        // this.scoreP2Text.setText(`SCORE: ${scoreP2}`)
         }
     }
 
@@ -354,7 +356,8 @@ export class GameScene extends Phaser.Scene {
 
         // If P1 shot laser, penalize P2
         if (laser.player === 'P1') {
-            scoreP2 -= CURRENT_SETTINGS.hitByLaserPenalty;
+            //scoreP2 -= CURRENT_SETTINGS.hitByLaserPenalty;
+            this.game.socketHandler.updateScore('right', -CURRENT_SETTINGS.hitByLaserPenalty)
             if (scoreP2 <= 0) {
                 scoreP2 = 0;
                 //this.scoreP2Text.setText(`SCORE: ${scoreP2}`)
@@ -364,7 +367,9 @@ export class GameScene extends Phaser.Scene {
 
         // If P2 shot laser, penalize P1
         if (laser.player === 'P2') {
-            scoreP1 -= CURRENT_SETTINGS.hitByLaserPenalty;
+            this.game.socketHandler.updateScore('left', -CURRENT_SETTINGS.hitByLaserPenalty)
+
+            // scoreP1 -= CURRENT_SETTINGS.hitByLaserPenalty;
             if (scoreP1 <= 0) {
                 scoreP1 = 0;
                 //this.scoreP1Text.setText(`SCORE: ${scoreP1}`)
@@ -454,6 +459,13 @@ export class GameScene extends Phaser.Scene {
                     }
                 }
              });
+
+            scoreP1 = data.player1Score;
+            scoreP2 = data.player2Score;
+
+             this.scoreP1Text.setText(`SCORE: ${scoreP1}`)
+             this.scoreP2Text.setText(`SCORE: ${scoreP2}`)
+
         });
 
         addListener('shootLaser', (data) => {
