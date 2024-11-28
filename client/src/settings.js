@@ -28,7 +28,7 @@ export class Settings {
         this.asteroids_mass = 10000;
 
         // Point Configuration
-        this.meteorScore = 100;
+        this.meteorScore = 150;
         this.hitByLaserPenalty = 100;
         this.hitByMeteorPenalty = 250;
 

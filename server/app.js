@@ -207,7 +207,7 @@ io.on('connection', (socket) => {
     socket.on('updateScore', (data) => {
         const gameId = socket.data.gameId;
         if (games.has(gameId)) {
-            games.get(gameId).updatePlayerScore(data.side, data.change)
+            games.get(gameId).updatePlayerScore(data.side, data.change / 2)
         }
     });
 
