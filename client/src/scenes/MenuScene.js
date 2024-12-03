@@ -8,7 +8,6 @@ import { CURRENT_SETTINGS } from '../settings.js';
  * and menu options for different game modes.
  * @extends Phaser.Scene
  */
-
 export class MenuScene extends Phaser.Scene {
     constructor() {
         super("bootGame")

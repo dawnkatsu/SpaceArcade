@@ -7,7 +7,6 @@ import * as WebFontLoader from '../../lib/webfontloader.js'
  * joining a multiplayer game.
  * @extends Phaser.Scene
  */
-
 export class WaitingRoomScene extends Phaser.Scene {
     constructor() {
         super("waitingRoom")
@@ -104,7 +103,7 @@ export class WaitingRoomScene extends Phaser.Scene {
             .on('pointerdown', () => {
                 // Cancel the game on the server
                 this.game.socketHandler.socket.emit('cancel_game', this.gameId);
-                
+
                 // Return to menu scene
                 this.scene.start('bootGame');
             });
