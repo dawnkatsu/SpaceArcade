@@ -18,6 +18,7 @@ export class EndScene extends Phaser.Scene {
 
     /**
      * Stores data received from GameScene.js: scoreP1, scoreP2
+     * @param {integer} data - player1 and player2 scores
      */
     init(data) {
         this.scoreP1 = data.scoreP1;

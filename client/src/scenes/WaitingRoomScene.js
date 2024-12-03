@@ -29,6 +29,7 @@ export class WaitingRoomScene extends Phaser.Scene {
 
     /**
      * Stores data received from SocketHandler.js: gameId, username
+     * @param {text} data - gameId and username
      */
     init(data) {
         this.gameId = data.gameId
