@@ -1,6 +1,12 @@
 import Phaser from '../../lib/phaser.js'
 import * as WebFontLoader from '../../lib/webfontloader.js'
 
+/**
+ * WaitingRoomScene class represents the waiting room of the game.
+ * This scene is active when creating a multiplayer game or 
+ * joining a multiplayer game.
+ * @extends Phaser.Scene
+ */
 export class WaitingRoomScene extends Phaser.Scene {
     constructor() {
         super("waitingRoom")
@@ -21,15 +27,27 @@ export class WaitingRoomScene extends Phaser.Scene {
         this.textElements = []
     }
 
+    /**
+     * Stores data received from SocketHandler.js: gameId, username
+     * @param {text} data - gameId and username
+     */
     init(data) {
         this.gameId = data.gameId
         this.username = data.username
     }
 
+    /**
+     * Preloads all assets required for the waiting room scene scene
+     * Including images for background
+     */
     preload() {
         this.load.image('space', "../assets/backgrounds/Space01.png")
     }
 
+    /**
+     * Creates and scales the background image to fit the screen
+     * @returns {Phaser.GameObjects.Image} The background image object
+     */
     createBackground() {
         let image = this.add.image(this.cameras.main.width / 2, this.cameras.main.height / 2, 'space')
         let scaleX = this.cameras.main.width / image.width
@@ -38,6 +56,9 @@ export class WaitingRoomScene extends Phaser.Scene {
         image.setScale(scale).setScrollFactor(0)
     }
 
+    /**
+     * Creates and initializes all waiting room menu elements
+     */
     create() {
         const centerX = this.scale.width / 2
 
@@ -83,6 +104,7 @@ export class WaitingRoomScene extends Phaser.Scene {
             .on('pointerdown', () => {
                 // Cancel the game on the server
                 this.game.socketHandler.socket.emit('cancel_game', this.gameId);
+
                 // Return to menu scene
                 this.scene.start('bootGame');
             });
