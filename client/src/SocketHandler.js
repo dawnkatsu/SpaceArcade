@@ -15,7 +15,10 @@
 export class SocketHandler {
     /**
      * Initializes the SocketHandler.
-     * Sets up the socket connection and initializes event listeners.
+     * Creates a new Socket.IO connection and sets up all necessary event listeners.
+     * 
+     * @constructor
+     * @throws {Error} If Socket.IO connection fails to initialize
      */
     constructor() {
         this.socket = io();
@@ -30,7 +33,9 @@ export class SocketHandler {
 
     /**
      * Sets up all socket event listeners.
-     * This method is called in the constructor and should not be called manually.
+     * Handles connection, game creation/joining, game state updates, and game end events.
+     * 
+     * @private
      */
     setupSocketListeners() {
         this.socket.on('connect', () => {
@@ -101,37 +106,52 @@ export class SocketHandler {
     }
 
     /**
-     * Sends a request to the server to create a new game.
-     * @param {string} username - The username of the player creating the game.
+     * Creates a new game session on the server.
+     * 
+     * @param {string} username - The username of the player creating the game
+     * @emits create_game
      */
     createGame(username) {
         this.socket.emit('create_game', username);
     }
 
     /**
-     * Sends a request to the server to join an existing game.
-     * @param {string} gameId - The ID of the game to join.
-     * @param {string} username - The username of the player joining the game.
+     *  Sends a request to join an existing game session.
+     * 
+     * @param {string} gameId - The unique identifier of the game to join
+     * @param {string} username - The username of the player joining the game
+     * @emits join_game
      */
     joinGame(gameId, username) {
         this.socket.emit('join_game', { game_id: gameId, username: username });
     }
 
     /**
-     * Sends the player's new vertical position to the server.
-     * @param {number} y - The new vertical position of the player.
+     * Updates the player's vertical position on the server.
+     * 
+     * @param {number} y - The new vertical position (pixels from top)
+     * @emits player_move
      */
     sendPlayerMove(y) {
         this.socket.emit('player_move', y);
     }
 
     /**
-     * Sends a player shoot action to the server.
+     * Notifies the server that the player has fired their weapon.
+     * 
+     * @emits player_shoot
      */
     sendPlayerShoot() {
         this.socket.emit('player_shoot');
     }
 
+    /**
+     * Reports a collision between a laser and a meteor to the server.
+     * 
+     * @param {Object} laser - The laser object involved in the collision
+     * @param {Object} meteor - The meteor object involved in the collision
+     * @emits laser_meteor_collision
+     */
     sendLaserMeteorCollision(laser, meteor) {
         this.socket.emit('laser_meteor_collision', {
             laser: laser,
@@ -139,15 +159,36 @@ export class SocketHandler {
         })
     }
 
+    /**
+     * Updates the score for a specific player side.
+     * 
+     * @param {string} side - The side of the player ('left' or 'right')
+     * @param {number} change - The score change amount (positive or negative)
+     * @emits updateScore
+     */
     updateScore(side, change) {
         this.socket.emit('updateScore', {side: side, change: change})
     }
 
+    /**
+     * Reports a collision between a laser and a player's ship.
+     * 
+     * @param {string} playerShip - The identifier of the ship that was hit
+     * @emits laser_ship_collision
+     */
     sendLaserShipCollision(playerShip) {
         this.socket.emit('laser_ship_collision', {
             player_ship: playerShip
         })
     }
+
+    /**
+     * Reports a collision between a meteor and a player's ship.
+     * 
+     * @param {string} meteorId - The unique identifier of the meteor
+     * @param {string} playerShip - The identifier of the ship ('spaceship' or 'spaceship2')
+     * @emits meteor_collision
+     */
 
     sendMeteorCollision(meteorId, playerShip) {
         this.socket.emit('meteor_collision', {
@@ -158,6 +199,7 @@ export class SocketHandler {
 
     /**
      * Registers an event listener for a specific game event.
+     * 
      * @param {string} event - The name of the event to listen for.
      * @param {function} callback - The function to call when the event occurs.
      */
@@ -168,6 +210,12 @@ export class SocketHandler {
         this.eventListeners[event].push(callback);
     }
 
+    /**
+     * Removes an event listener for a specific game event.
+     * 
+     * @param {string} event - The name of the event to stop listening for
+     * @param {Function} callback - The function to remove from the event listeners
+     */
     off(event, callback) {
         if (this.eventListeners[event]) {
             this.eventListeners[event] = this.eventListeners[event].filter(cb => cb !== callback);
@@ -176,6 +224,8 @@ export class SocketHandler {
 
     /**
      * Triggers all registered callbacks for a specific event.
+     * 
+     * @private
      * @param {string} event - The name of the event to trigger.
      * @param {*} data - The data to pass to the event callbacks.
      */

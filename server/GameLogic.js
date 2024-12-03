@@ -3,12 +3,26 @@
  * ------------
  * Game state management for the Space Battle Multiplayer Game.
  * 
- * This class handles player management, game state, and game actions.
+ * This module handles:
+ * - Player management and scoring
+ * - Game state tracking and updates
+ * - Meteor generation and collision detection
+ * - Player respawn mechanics
+ * 
+ * @module GameLogic
+ * @requires ./settings
  */
 
 const { CURRENT_SETTINGS } = require('./settings');
 
+/**
+ * Manages the state and logic for a single game session
+ */
 class GameState {
+    /**
+     * Creates a new game state instance.
+     * Initializes player tracking and generates initial meteor positions.
+     */
     constructor() {
         this.players = new Map();
         this.gameStarted = false;
@@ -22,13 +36,15 @@ class GameState {
         }
     }
 
+    /**
+     * Adds a new player to the game.
+     * Assigns them to either the left or right side based on join order.
+     * 
+     * @param {string} playerId - Unique identifier for the player
+     * @param {string} username - Player's display name
+     * @returns {string} The side assigned to the player ('left' or 'right')
+     */
     addPlayer(playerId, username) {
-        /**
-         * Add a player to the game
-         * @param {string} playerId - Unique identifier for the player
-         * @param {string} username - Player's username
-         * @returns {string} - The side assigned to the player ('left' or 'right')
-         */
         const side = this.players.size === 0 ? 'left' : 'right';
         this.players.set(playerId, {
             username: username,
@@ -39,23 +55,31 @@ class GameState {
         return side;
     }
 
+    /**
+     * Removes a player from the game.
+     * 
+     * @param {string} playerId - Unique identifier for the player to remove
+     */
     removePlayer(playerId) {
-        /**
-         * Remove a player from the game
-         * @param {string} playerId - Unique identifier for the player to remove
-         */
         this.players.delete(playerId);
     }
 
+    /**
+     * Gets the side ('left' or 'right') assigned to a player.
+     * 
+     * @param {string} playerId - Unique identifier for the player
+     * @returns {string} The side ('left' or 'right') assigned to the player
+     */
     getPlayerSide(playerId) {
-        /**
-         * Gets player's side
-         * @param {string} playerId - Unique identifier for the player
-         * @returns {string} - The side ('left' or 'right') assigned to the player
-         */
         return this.players.get(playerId).side;
     }
 
+    /**
+     * Gets the score for a specified side.
+     * 
+     * @param {string} side - The side to get the score for ('left' or 'right')
+     * @returns {number} The current score for that side
+     */
     getPlayerScore(side) {
         for (const [_, player] of this.players) {
             if (player.side === side) {
@@ -65,6 +89,12 @@ class GameState {
         return 0;  // Only returns 0 if no player found with that side
     }
 
+    /**
+     * Updates the score for a specified side.
+     * 
+     * @param {string} side - The side to update ('left' or 'right')
+     * @param {number} change - Amount to change the score by (can be negative)
+     */
     updatePlayerScore(side, change) {
         for (const [_, player] of this.players) {
             if (player.side === side) {
@@ -74,6 +104,20 @@ class GameState {
         }
     }
 
+    /**
+     * Generates a new meteor with random properties.
+     * Creates meteors either in the play area or off-screen for respawning.
+     * 
+     * @param {boolean} [isOutOfBounds=false] - Whether the meteor is being respawned
+     * @returns {Object} A meteor object with the following properties:
+     * @returns {string} .id - Unique identifier for the meteor
+     * @returns {number} .x - X coordinate
+     * @returns {number} .y - Y coordinate
+     * @returns {number} .velocityX - Horizontal velocity
+     * @returns {number} .velocityY - Vertical velocity
+     * @returns {number} .scale - Size multiplier
+     * @returns {number} .init_x_vel - Initial horizontal velocity
+     */
     generateNewMeteor(isOutOfBounds = false) {
         let rand_y;
         if (!isOutOfBounds) {
@@ -102,7 +146,12 @@ class GameState {
         };
     }
 
-    // Called when client reports a meteor is out of bounds
+    /**
+     * Respawns a meteor that has gone out of bounds.
+     * Generates a new meteor and replaces the old one.
+     * 
+     * @param {string} meteorId - ID of the meteor to respawn
+     */
     respawnMeteor(meteorId) {
         this.processedMeteorCollisions.delete(meteorId);
         const index = this.meteors.findIndex(m => m.id === meteorId);
@@ -111,22 +160,19 @@ class GameState {
         }
     }
 
-    // handleLaserShipCollision(playerId) {
-    //     // Start respawn state for the hit player
-    //     this.respawningPlayers.add(playerId);
-
-    //     // Reset player position to middle
-    //     if (this.players.has(playerId)) {
-    //         this.players.get(playerId).position = 300; // Reset to middle of screen
-    //     }
-        
-    //     // Set timeout to clear respawn state after delay
-    //     setTimeout(() => {
-    //         this.respawningPlayers.delete(playerId);
-    //     }, CURRENT_SETTINGS.spawnDelay);
-
-    // }
-
+    /**
+     * Handles collision between a meteor and a player's ship.
+     * Updates scores, triggers respawn state, and returns updated game state.
+     * 
+     * @param {string} playerId - ID of the player involved in collision
+     * @param {Object} data - Collision data
+     * @param {string} data.meteor_id - ID of the meteor involved
+     * @param {string} data.player_ship - Identifier of the ship that was hit
+     * @returns {Object} Updated game state including:
+     * @returns {number} .scoreP1 - Current score for player 1
+     * @returns {number} .scoreP2 - Current score for player 2
+     * @returns {boolean} .processed - Whether the collision was processed
+     */
     handleMeteorCollision(playerId, data) {
         if (this.processedMeteorCollisions.has(data.meteor_id)) {
             return {
@@ -164,11 +210,18 @@ class GameState {
         };
     }
 
+    /**
+     * Gets the current state of the game for all players.
+     * 
+     * @returns {Object} Current game state including:
+     * @returns {number} .player1 - Position of player 1
+     * @returns {number} .player2 - Position of player 2
+     * @returns {number} .player1Score - Score of player 1
+     * @returns {number} .player2Score - Score of player 2
+     * @returns {Array} .meteors - Array of active meteors
+     * @returns {Array} .respawningPlayers - Array of players currently respawning
+     */
     getState() {
-        /**
-         * Get the current game state
-         * @returns {Object} - Current positions of both players
-         */
         let player1, player2;
         
         // Find players by their sides
@@ -191,22 +244,25 @@ class GameState {
         };
     }
 
+    /**
+     * Handles cleanup when a player disconnects from the game.
+     * 
+     * @param {string} playerId - ID of the disconnected player
+     */
     handlePlayerDisconnect(playerId) {
-        /**
-         * Handle a player disconnection
-         * @param {string} playerId - Unique identifier for the disconnected player
-         */
         this.removePlayer(playerId);
         this.gameStarted = false;
     }
 
+    /**
+     * Updates a player's vertical position.
+     * Ignores updates for players who are currently respawning.
+     * 
+     * @param {string} playerId - ID of the player to update
+     * @param {number} y - New vertical position
+     * @returns {Object|null} Updated positions of both players, or null if player is respawning
+     */
     updatePlayerPosition(playerId, y) {
-        /**
-         * Update a player's position
-         * @param {string} playerId - Unique identifier for the player
-         * @param {number} y - New vertical position
-         * @returns {Object} - Updated positions of both players
-         */
         // Don't update position if player is respawning
         if (this.respawningPlayers.has(playerId)) {
             return null;
@@ -231,12 +287,15 @@ class GameState {
         };
     }
 
+    /**
+     * Processes a player's shoot action.
+     * 
+     * @param {string} playerId - ID of the player who shot
+     * @returns {Object} Information about the shot:
+     * @returns {string} .side - Which side the shot came from ('left' or 'right')
+     * @returns {number} .y - Vertical position of the shot
+     */
     playerShoot(playerId) {
-        /**
-         * Handle player shoot action
-         * @param {string} playerId - Unique identifier for the player who shot
-         */
-        // Placeholder for shooting mechanism
         if (this.players.has(playerId)) {
             return {
                 side: this.players.get(playerId).side,
