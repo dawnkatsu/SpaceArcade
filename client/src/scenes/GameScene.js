@@ -4,6 +4,17 @@ import { MenuScene } from './MenuScene.js';
 import { EndScene } from './EndScene.js';
 import { CURRENT_SETTINGS } from '../settings.js';
 
+/**
+ * GameScene.js
+ * -----------------
+ * The scene handles gameplay, keyboard inputs, and passes game states to server
+ * to render the ship's actions to both clients
+ * 
+ *
+ * Author: Kevin Le and Dawn Arrington
+ * Date: 12/2/2024
+ */
+
 // Game Timer Variable
 var gameTime;
 
@@ -23,6 +34,9 @@ var laserDelayP1 = CURRENT_SETTINGS.laserInterval;
 var laserDelayP2 = CURRENT_SETTINGS.laserInterval;
 
 export class GameScene extends Phaser.Scene {
+    /**
+     * Initializes the GameScene
+     */
     constructor() {
         super('playGame');
         this.socketListeners = []; 
@@ -154,6 +168,10 @@ export class GameScene extends Phaser.Scene {
         this.physics.add.collider(this.laserGroupP2, this.meteors, this.shotMeteor, null, this);        
         }
 
+    /**
+     * Input handler for P1's key press. If up and down arrows are pressed, send the next expected
+     * position to the server for it to update from the server side
+     */
     moveP1() {
         if (this.game.socketHandler.playerSide !== 'left') return;
         if (this.player.isRespawning) return;
@@ -174,11 +192,14 @@ export class GameScene extends Phaser.Scene {
         }   
 
         if (this.cursors.space.isDown && laserDelayP1 <= 0) {
-            //this.fireLaser(this.player, this.laserGroupP1, this.player.x, this.player.y)
             this.game.socketHandler.sendPlayerShoot(this.player.y)
         }
     }
 
+    /**
+     * Input handler for P2's key press. If w and s buttons are pressed, send the next expected
+     * position to the server for it to update from the server side
+     */
     moveP2() {
         if (this.game.socketHandler.playerSide !== 'right') return;
         if (this.player2.isRespawning) return;
@@ -198,11 +219,14 @@ export class GameScene extends Phaser.Scene {
         }
 
         if (keyJ.isDown && laserDelayP2 <= 0) {
-            //this.fireLaser(this.player2, this.laserGroupP2, this.player2.x, this.player2.y)
             this.game.socketHandler.sendPlayerShoot(this.player2.y);
         }
     }
 
+    /**
+     * AI player movement logistics. Moves up and down at random, and only allowed to shoot when the laser
+     * delay timer is up
+     */
     aiPlayer() {
         if (laserDelayP2 > 0) {
             return;
@@ -216,7 +240,6 @@ export class GameScene extends Phaser.Scene {
 
 
         const remaining = this.timer.getRemaining();
-        //console.log(remaining);
         if (remaining >= 0) {
             this.player2.setVelocityY(controls[random]);
         };
@@ -239,13 +262,6 @@ export class GameScene extends Phaser.Scene {
         this.moveP1();
         this.moveP2();
 
-        // if (CURRENT_SETTINGS.isSinglePlayer === true) {
-        //     this.aiPlayer();
-        // }
-        // else if (CURRENT_SETTINGS.isSinglePlayer === false) {
-        //     this.moveP2();
-        // } 
-
         // Check for out-of-bounds meteors
         this.meteors.children.iterate((meteor) => {
             if (meteor.y < -30 || meteor.y > 630 || meteor.x < -30 || meteor.x > 830) {
@@ -256,7 +272,13 @@ export class GameScene extends Phaser.Scene {
         this.endGame();
     }
 
+    /**
+     * Triggers ship and meteor explosion animation once they are in contact. Sends
+     * the collision information to the server via socketHandler, and respawn
+     * after the delay
+     */
     hitByMeteor(player, meteor) {
+
         // Prevent collision if player is respawning
         if (player.isRespawning || !meteor.id) {
             return;
@@ -282,16 +304,26 @@ export class GameScene extends Phaser.Scene {
         }, [], this);
     }
 
+    /**
+     * Send the laser and meteor collision information to the server side for it to process
+     * 
+     */
     sendDestroyMeteor(laser, meteor) {
         this.game.socketHandler.sendLaserMeteorCollision(laser, meteor);
     }
 
+    /**
+     * Play either degredation or explosion animation depending on the current animation frame, and play
+     * the sound of it being destroyed
+     */
     destroyMeteor(laser, meteor) {
+        // Calculate the x term velocity of the meteor after being hit by a laser, and modify the velocity
         let calculated_final_v = (CURRENT_SETTINGS.laserSpeed + meteor.init_x_vel * CURRENT_SETTINGS.asteroids_mass) / CURRENT_SETTINGS.asteroids_mass
         meteor.body.setVelocityX(calculated_final_v)
         meteor.init_x_vel = calculated_final_v
         laser.disableBody(true, true);
         
+        // If the current frame is already at "degredation", the next hit will be explosion
         if (meteor.anims.currentAnim.key == "degredation") {
             meteor.play("explosion")
             this.sound.play('asteroidExplosion', {
@@ -299,10 +331,12 @@ export class GameScene extends Phaser.Scene {
                 detune: -200
             })
             meteor.once('animationcomplete', () => {
+                // once the asteroid has exploded, move it way off the screen to be reset and respawned
                 meteor.setPosition(-999,-999)
             })
 
         }
+        // Cause a degredation to the asteroid if it's the first time being hit
         else {
             this.sound.play('asteroidExplosion', {
                 volume: .2,
@@ -312,29 +346,32 @@ export class GameScene extends Phaser.Scene {
             meteor.play("degredation")
             meteor.setOffset(35.3,32.55)
 
-            
-            //console.log(laser.player)
         }
     }
 
+    /**
+     * Trigger destroyMeteor function that renders what happens to the meteor once shot, and then send collision
+     * information to the server to award points to the player that shot the meteor
+     */
     shotMeteor(laser, meteor) {
         this.sendDestroyMeteor(laser, meteor);
 
         if (laser.player === 'P1') {
         this.destroyMeteor(laser, meteor);
         this.game.socketHandler.updateScore('left', CURRENT_SETTINGS.meteorScore);
-        //scoreP1 += CURRENT_SETTINGS.meteorScore;
-        //this.scoreP1Text.setText(`SCORE: ${scoreP1}`)
         }
 
         else if (laser.player === 'P2') {
         this.destroyMeteor(laser, meteor);
         this.game.socketHandler.updateScore('right', CURRENT_SETTINGS.meteorScore);
-        //scoreP2 += CURRENT_SETTINGS.meteorScore;
-        // this.scoreP2Text.setText(`SCORE: ${scoreP2}`)
         }
     }
 
+    /**
+     * If a ship is hit by the opponent's laser, freeze the velocity and respawn the ship after the delay times out.
+     * The collision information is sent out to the server to award the points to the ship that shot the opponent
+     * down, and deduct the points for the ship that got shot. 
+     */
     hitByLaser(player, laser) {
         player.body.setVelocityX(0);
         
@@ -344,11 +381,6 @@ export class GameScene extends Phaser.Scene {
         // Disable laser object on impact
         laser.disableBody(true, true);
 
-        // Send collision to server
-        // this.game.socketHandler.sendLaserShipCollision(player.texture.key);
-
-
-        // this.time.delayedCall(CURRENT_SETTINGS.spawnDelay, this.reset, [player], this);
         // Handle respawn
         this.time.delayedCall(CURRENT_SETTINGS.spawnDelay, () => {
             player.isRespawning = false;
@@ -361,21 +393,16 @@ export class GameScene extends Phaser.Scene {
             this.game.socketHandler.updateScore('right', -CURRENT_SETTINGS.hitByLaserPenalty)
             if (scoreP2 <= 0) {
                 scoreP2 = 0;
-                //this.scoreP2Text.setText(`SCORE: ${scoreP2}`)
             }
-            //this.scoreP2Text.setText(`SCORE: ${scoreP2}`)
         }
 
         // If P2 shot laser, penalize P1
         if (laser.player === 'P2') {
             this.game.socketHandler.updateScore('left', -CURRENT_SETTINGS.hitByLaserPenalty)
 
-            // scoreP1 -= CURRENT_SETTINGS.hitByLaserPenalty;
             if (scoreP1 <= 0) {
                 scoreP1 = 0;
-                //this.scoreP1Text.setText(`SCORE: ${scoreP1}`)
             }
-            //this.scoreP1Text.setText(`SCORE: ${scoreP1}`)
         }
     }
 
@@ -414,6 +441,9 @@ export class GameScene extends Phaser.Scene {
         });
     }
 
+     /**
+     * Socket listeners
+     */   
     setupSocketListeners() {
 
         // Setup new listeners
@@ -422,6 +452,10 @@ export class GameScene extends Phaser.Scene {
             this.socketListeners.push({ event, callback });
         };
 
+        /**
+        * Retrieves game state from the server to render the each player and meteor to the correct position
+        * and displays the score
+        */   
         addListener('gameStateUpdate', (data) => {
             // Only update positions if not respawning
             const isP1Respawning = data.respawningPlayers.includes(this.game.socketHandler.playerId) && this.game.socketHandler.playerSide === 'left';
@@ -469,6 +503,10 @@ export class GameScene extends Phaser.Scene {
 
         });
 
+        /**
+        * Fire the laser using Phaser once the server receives the input for shoot 
+        * for both players 
+        */   
         addListener('shootLaser', (data) => {
             if (data.side === 'left') {
                 this.fireLaser(this.player, this.laserGroupP1, this.player.x, data.y)
