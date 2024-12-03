@@ -49,7 +49,6 @@ export class MenuScene extends Phaser.Scene {
      * @returns {Phaser.GameObjects.Image} The background image object
      */
     createBackground() {
-        // console.log('MenuScene: creating background');
         let image = this.add.image(this.cameras.main.width / 2, this.cameras.main.height / 2, 'space')
         let scaleX = this.cameras.main.width / image.width
         let scaleY = this.cameras.main.height / image.height
