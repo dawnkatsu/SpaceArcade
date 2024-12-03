@@ -55,8 +55,9 @@ export class EndScene extends Phaser.Scene {
     }
 
     /**
-     * Starts a delayed call to display game results for a set amount of time
-     * before returning to MenuScene
+     * Starts a delayed call within Phaser's constant update( ) function
+     * to display game results for a set amount of time before 
+     * returning to MenuScene.
      */
     update() {
         this.time.delayedCall(CURRENT_SETTINGS.endSceneDuration, this.backToMain, [], this);
