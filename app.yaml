@@ -1,0 +1,18 @@
+runtime: nodejs22
+
+handlers:
+  # Serve static files from the client directory
+  - url: /assets
+    static_dir: assets
+  
+  - url: /static
+    static_dir: client
+
+  # Serve the main HTML file
+  - url: /
+    static_files: client/index.html
+    upload: client/index.html
+
+  # All other routes handled by the server (Node.js app)
+  - url: /.*
+    script: auto
