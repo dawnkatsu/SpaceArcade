@@ -1,3 +1,18 @@
+/**
+ * EndScene.js
+ * -----------
+ * Represents the game over scene displayed after a match concludes.
+ * Handles displaying final scores, determining the winner, and
+ * transitioning back to the main menu after a delay.
+ * 
+ * Key features:
+ * - Displays final scores for both players
+ * - Shows winner or tie result
+ * - Automatically returns to menu after set duration
+ * - Resets game state for next match
+ * 
+ */
+
 import Phaser from '../../lib/phaser.js'
 import * as WebFontLoader from '../../lib/webfontloader.js'
 import { MenuScene } from './MenuScene.js';

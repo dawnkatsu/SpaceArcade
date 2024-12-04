@@ -1,3 +1,16 @@
+/**
+ * WaitingRoomScene.js
+ * ------------------
+ * Intermediate scene displayed while waiting for another player
+ * to join a multiplayer session.
+ * 
+ * Key features:
+ * - Displays game ID for sharing
+ * - Shows waiting status
+ * - Allows game cancellation
+ * - Handles automatic transition to game when player joins
+ * - Socket event management for player joining
+ */
 import Phaser from '../../lib/phaser.js'
 import * as WebFontLoader from '../../lib/webfontloader.js'
 

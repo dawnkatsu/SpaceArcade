@@ -10,11 +10,11 @@
 
 ## Client-Server Communication Overview
 ### Overview
-Our game uses a client-server architecture with real-time communication via WebSocket, implemented through Socket.IO. The server is built with Flask and Flask-SocketIO, while the client uses Phaser for game rendering and the Socket.IO client library for network communication.
+Our game uses a client-server architecture with real-time communication via WebSocket, implemented through Socket.IO. The server is built with Node.js and Node.JS HTTP Server Socket.IO, while the client uses Phaser for game rendering and the Socket.IO client library for network communication.
 
 ### Key Components:
 
-* Server: Flask with Flask-SocketIO
+* Server: Node.js with Node.JS HTTP Server SocketIO
 * Client: Phaser game engine with Socket.IO client
 * Protocol: WebSocket (with Socket.IO fallbacks)
 

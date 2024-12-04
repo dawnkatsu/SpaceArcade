@@ -1,3 +1,18 @@
+/**
+ * MenuScene.js
+ * ------------
+ * Main menu interface providing game mode selection and multiplayer
+ * session management.
+ * 
+ * Key features:
+ * - Game mode selection (Create Game, Join Game, Player vs Computer)
+ * - Multiplayer session creation and joining
+ * - Background music and audio controls
+ * - Input handling for game ID and username
+ * - Socket connection management
+ * - Visual feedback and hover effects
+ */
+
 import Phaser from '../../lib/phaser.js'
 import * as WebFontLoader from '../../lib/webfontloader.js'
 import { CURRENT_SETTINGS } from '../settings.js';

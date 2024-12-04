@@ -29,10 +29,6 @@ client/
 │   │   ├── WaitingRoomScene.js
 │   │   └── GameScene.js
 |   │   └── EndScene.js
-│   ├── sprites/     # Game object classes
-│   │   ├── Player.js
-│   │   ├── Asteroid.js
-│   │   └── Projectile.js
 └── assets/          # Client-side assets
     ├── sprites/
     ├── audio/
@@ -47,18 +43,17 @@ client/
     * Loads necessary scripts (Phaser, Socket.IO)
     * Sets up the game container
     * Includes CSS and other dependencies
-* styles/main.css - Global stylesheet
 * src/main.js - Game initialization and configuration:
     * Creates Phaser game instance
     * Sets up game configuration 
     * Manages scene loading and transitions
     * Initializes connection to server
-* src/config.js - Game configuration constants:
+* src/settings.js - Game configuration constants:
     * Screen dimensions and scaling
     * Physics parameters
     * Player movement speeds
     * Shooting cooldowns
-* src/socket_handler.js - Handles WebSocket communication between the client and server. Manages all socket events including:
+* src/SocketHandler.js - Handles WebSocket communication between the client and server. Manages all socket events including:
     * Game creation
     * Joining a game
     * Player actions
@@ -79,52 +74,32 @@ client/
     * Collision detection
     * Score tracking
     * Real-time multiplayer sync
+* scenes/GameSceneAI.js - Single-player gameplay scene:
+    * AI enemy
 * scenes/EndScene.js - End game screen:
     * Final scores display
     * Winner announcement
     * Return to menu
 
-### Sprite Classes
-* sprites/Player.js - Player ship implementation:
-    * Movement controls
-    * Shooting mechanics
-    * Collision handling
-    * Visual effects
-    * Network position updates
-* sprites/Asteroid.js - Asteroid object implementation:
-    * Movement patterns
-    * Size variations
-    * Collision detection
-    * Health/damage system
-* sprites/Projectile.js - Projectile system:
-    * Movement physics
-    * Collision detection
-    * Damage calculations
-    * Visual effects
-    * Cleanup handling
-
 ## Server Directory Structure
 Contains all backend logic including the Flask server, game state management, and multiplayer synchronization code.
 ```
 server/
-├── app.py          # Main Flask application
-├── requirements.txt # Python dependencies
-├── config.py       # Server configuration
-└── game_logic.py           # Game server logic
+├── app.js          # Main Node.js application
+├── settings.js       # Server configuration
+└── GameLogic.js           # Game server logic
 ```
 
 ## Server File Descriptions
 
-* app.py - Main Flask application:
-    * Sets up Flask server
+* app.js - Main Node.js application:
+    * Sets up Nodejs server
     * Handles WebSocket connections
     * Manages game creation and joining
     * Coordinates communication between clients
-* requirements.txt - Python package dependencies
-* config.py - Server configuration:
-    * Server settings
+* settings.js - Server configuration:
     * Game constants
-* game_logic.py - Game state management:
+* GameLogic.js - Game state management:
     * Physics calculations
     * Game state updates
     * Player action validation

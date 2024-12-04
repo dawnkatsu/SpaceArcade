@@ -1,9 +1,3 @@
-import Phaser from '../../lib/phaser.js'
-import * as WebFontLoader from '../../lib/webfontloader.js'
-import { MenuScene } from './MenuScene.js';
-import { EndScene } from './EndScene.js';
-import { CURRENT_SETTINGS } from '../settings.js';
-
 /**
  * GameScene.js
  * -----------------
@@ -14,6 +8,12 @@ import { CURRENT_SETTINGS } from '../settings.js';
  * Author: Kevin Le and Dawn Arrington
  * Date: 12/2/2024
  */
+
+import Phaser from '../../lib/phaser.js'
+import * as WebFontLoader from '../../lib/webfontloader.js'
+import { MenuScene } from './MenuScene.js';
+import { EndScene } from './EndScene.js';
+import { CURRENT_SETTINGS } from '../settings.js';
 
 // Game Timer Variable
 var gameTime;
